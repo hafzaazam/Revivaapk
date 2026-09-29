@@ -1,0 +1,213 @@
+/* ============================================================
+   Oil-flow cursor — Revivaa
+   - droplet tracks 1:1
+   - film ring lags (viscous, smoothed in JS)
+   - trail droplets fade behind
+   ============================================================ */
+
+   .cursor-trail,
+   .cursor-film,
+   .cursor-oil {
+     position: fixed;
+     top: 0;
+     left: 0;
+     pointer-events: none;
+     z-index: 10000;
+     will-change: transform;
+   }
+   
+   /* ---------- Trailing droplets ---------- */
+   .cursor-trail {
+     inset: 0;
+     z-index: 9998;
+   }
+   
+   .cursor-drop {
+     position: absolute;
+     width: var(--s, 5px);
+     height: var(--s, 5px);
+     margin-left: calc(var(--s, 5px) / -2);
+     margin-top: calc(var(--s, 5px) / -2);
+     border-radius: 50%;
+     background: radial-gradient(
+       circle at 35% 30%,
+       #ffe6a8 0%,
+       #f2a70c 45%,
+       rgba(242, 151, 12, 0) 75%
+     );
+     box-shadow: 0 0 10px rgba(242, 151, 12, 0.55);
+     opacity: 0.85;
+     animation: cursor-drop-flow 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+   }
+   
+   @keyframes cursor-drop-flow {
+     0% {
+       transform: translate3d(0, 0, 0) scale(1);
+       opacity: 0.85;
+     }
+     60% {
+       opacity: 0.4;
+     }
+     100% {
+       transform: translate3d(var(--dx, 0), var(--dy, 0), 0) scale(0.2);
+       opacity: 0;
+     }
+   }
+   
+   /* ---------- Viscous film ring ---------- */
+   .cursor-film {
+     width: 46px;
+     height: 46px;
+     margin: -23px 0 0 -23px;
+     border-radius: 50%;
+     /* Oil slick: soft amber, translucent, blurred edge */
+     background:
+       radial-gradient(
+         circle at 50% 50%,
+         rgba(255, 210, 120, 0.0) 42%,
+         rgba(242, 151, 12, 0.16) 62%,
+         rgba(242, 151, 12, 0.05) 78%,
+         transparent 82%
+       );
+     backdrop-filter: blur(2px);
+     -webkit-backdrop-filter: blur(2px);
+     transition:
+       width 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+       height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+       margin 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+       opacity 0.35s ease;
+     opacity: 0.9;
+   }
+   
+   .cursor-film__sheen {
+     position: absolute;
+     inset: 12%;
+     border-radius: 50%;
+     background: conic-gradient(
+       from 200deg,
+       rgba(255, 255, 255, 0) 0deg,
+       rgba(255, 232, 180, 0.35) 60deg,
+       rgba(242, 151, 12, 0.0) 140deg,
+       rgba(255, 210, 120, 0.25) 260deg,
+       rgba(255, 255, 255, 0) 360deg
+     );
+     mix-blend-mode: screen;
+     animation: cursor-film-sheen 6s linear infinite;
+     opacity: 0.75;
+   }
+   
+   @keyframes cursor-film-sheen {
+     to { transform: rotate(360deg); }
+   }
+   
+   /* Hover: the film stretches out like oil spreading on water */
+   .cursor-film.is-hover {
+     width: 72px;
+     height: 72px;
+     margin: -36px 0 0 -36px;
+     opacity: 1;
+   }
+   
+   .cursor-film.is-down {
+     width: 36px;
+     height: 36px;
+     margin: -18px 0 0 -18px;
+     opacity: 0.7;
+   }
+   
+    /* ---------- Sharp oil droplet ---------- */
+    .cursor-oil {
+      width: 14px;
+      height: 14px;
+      margin: -7px 0 0 -7px;
+      border-radius: 50%;
+      /* transform is written every rAF frame by Cursor.jsx, so it must NOT be
+         transitioned — a running transition would restart on each write and
+         smear the droplet. Only the hover-grow is animated here. */
+      transition:
+        width 0.25s ease,
+        height 0.25s ease,
+        margin 0.25s ease;
+    }
+   
+   .cursor-oil__core {
+     position: absolute;
+     inset: 0;
+     border-radius: 50%;
+     /* Golden oil droplet with an inner specular highlight */
+     background:
+       radial-gradient(
+         circle at 32% 28%,
+         #fff6d8 0%,
+         #ffd06a 22%,
+         #f2970c 60%,
+         #a35c00 100%
+       );
+     box-shadow:
+       0 0 0 1px rgba(255, 224, 150, 0.55),
+       0 0 12px rgba(242, 151, 12, 0.75),
+       0 0 28px rgba(242, 151, 12, 0.35),
+       inset -2px -3px 6px rgba(120, 60, 0, 0.55),
+       inset 2px 3px 4px rgba(255, 235, 180, 0.6);
+   }
+   
+   /* Subtle, continuous "breathing" so the droplet feels alive */
+   .cursor-oil__core::after {
+     content: '';
+     position: absolute;
+     inset: 20%;
+     border-radius: 50%;
+     background: radial-gradient(
+       circle,
+       rgba(255, 245, 210, 0.9) 0%,
+       rgba(255, 220, 140, 0.0) 70%
+     );
+     animation: cursor-oil-pulse 2.6s ease-in-out infinite;
+   }
+   
+   @keyframes cursor-oil-pulse {
+     0%, 100% { transform: scale(1);   opacity: 0.9; }
+     50%      { transform: scale(1.5); opacity: 0.35; }
+   }
+   
+   /* Hover: droplet elongates like a bead of oil being pulled */
+   .cursor-oil.is-hover {
+     width: 20px;
+     height: 20px;
+     margin: -10px 0 0 -10px;
+   }
+   
+   .cursor-oil.is-hover .cursor-oil__core {
+     box-shadow:
+       0 0 0 1px rgba(255, 224, 150, 0.75),
+       0 0 18px rgba(242, 151, 12, 0.9),
+       0 0 42px rgba(242, 151, 12, 0.45),
+       inset -2px -3px 6px rgba(120, 60, 0, 0.55),
+       inset 2px 3px 4px rgba(255, 235, 180, 0.75);
+   }
+   
+   /* Press: droplet flattens and widens like a splash */
+   .cursor-oil.is-down {
+     width: 18px;
+     height: 12px;
+     margin: -6px 0 0 -9px;
+   }
+   
+   .cursor-oil.is-down .cursor-oil__core {
+     border-radius: 50% / 40%;
+   }
+   
+   /* ---------- Reduced motion / touch ---------- */
+   @media (max-width: 768px), (pointer: coarse), (prefers-reduced-motion: reduce) {
+     .cursor-oil,
+     .cursor-film,
+     .cursor-trail {
+       display: none !important;
+     }
+   }
+   
+   /* Hide native cursor while ours is active */
+   html.custom-cursor body,
+   html.custom-cursor body * {
+     cursor: none;
+   }

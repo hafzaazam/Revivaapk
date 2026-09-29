@@ -1,0 +1,57 @@
+# ==============================================================================
+# Production .htaccess for https://revivaabyzaish.com
+# ==============================================================================
+
+Options -Indexes
+
+# Custom 404 handler
+ErrorDocument 404 /404.html
+ErrorDocument 403 /404.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 1. Force HTTPS
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # 2. Redirect www to non-www (Canonical normalization)
+  RewriteCond %{HTTP_HOST} ^www\.revivaabyzaish\.com [NC]
+  RewriteRule ^(.*)$ https://revivaabyzaish.com/$1 [L,R=301]
+
+  # 3. Existing static files and directories are served directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 4. Do not rewrite missing static assets to index.html (let them 404 cleanly)
+  RewriteCond %{REQUEST_URI} \.(js|mjs|css|map|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|eot|mp4|webm|json|xml|txt)(\?.*)?$ [NC]
+  RewriteRule ^ - [L]
+
+  # 5. SPA Fallback: All application routes route to index.html
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Security & Privacy Headers
+<IfModule mod_headers.c>
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# Browser Caching Policy
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/avif "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType font/woff "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>

@@ -1,0 +1,787 @@
+/* ——— Cinematic Ingredient Reveal Section ——— */
+
+.cine {
+  position: relative;
+  padding: 0;
+  background: #0a0904;
+  color: #f6f1e4;
+  /* Desktop scroll pace: ~45vh per chapter */
+  min-height: calc(100vh + (var(--scene-count, 13) * 45vh));
+  overflow-anchor: none;
+  outline: none;
+}
+
+[data-theme='dark'] .cine {
+  background: #070703;
+}
+
+.cine__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  /* Hardware composite isolation prevents repaint jitter */
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  contain: layout style;
+  touch-action: pan-y;
+}
+
+/* ——— Backdrop Image & Grading ——— */
+.cine__backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  transform: translate3d(0, 0, 0);
+  contain: strict;
+  user-select: none;
+}
+
+.cine__scene {
+  position: absolute;
+  inset: 0;
+  will-change: opacity;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+  contain: strict;
+}
+
+.cine__scene-img {
+  position: absolute;
+  inset: -2%;
+  width: 104%;
+  height: 104%;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(0.85) contrast(1.05) brightness(0.88);
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+  pointer-events: none;
+}
+
+.cine__scene-tint {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Deep cinematic vignette — 100% pure CSS, 0 CPU re-rasterization */
+.cine__vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 120% 90% at 50% 50%,
+      transparent 20%,
+      rgba(0, 0, 0, 0.55) 70%,
+      rgba(0, 0, 0, 0.85) 100%
+    ),
+    linear-gradient(
+      100deg,
+      rgba(8, 7, 3, 0.88) 0%,
+      rgba(8, 7, 3, 0.42) 35%,
+      transparent 65%
+    );
+  transform: translate3d(0, 0, 0);
+  contain: strict;
+}
+
+/* Letterbox bars */
+.cine__bars::before,
+.cine__bars::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4.5vh;
+  background: #050402;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.cine__bars::before { top: 0; }
+.cine__bars::after  { bottom: 0; }
+
+/* ——— Foreground Layout Grid ——— */
+.cine__inner {
+  position: relative;
+  z-index: 4;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(280px, 0.85fr) minmax(340px, 1fr);
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  padding-top: calc(var(--nav-h, 72px) + 2rem);
+  padding-bottom: 6vh;
+}
+
+/* ——— LEFT COLUMN: Bottle & Lead ——— */
+.cine__left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.cine__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.68rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(246, 241, 228, 0.75);
+}
+
+.cine__eyebrow-rule {
+  width: 32px;
+  height: 1px;
+  background: var(--color-orange, #f2970c);
+  display: inline-block;
+}
+
+.cine__title {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(2rem, 3.4vw, 3.1rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.5);
+  max-width: 14ch;
+}
+
+.cine__title em {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-orange, #f2970c);
+}
+
+.cine__lead {
+  max-width: 34ch;
+  margin: 0;
+  font-size: clamp(0.88rem, 1vw, 0.96rem);
+  line-height: 1.55;
+  color: rgba(246, 241, 228, 0.75);
+}
+
+/* Bottle float container */
+.cine__bottle-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-self: center;
+  margin-top: 1rem;
+  width: 100%;
+  min-height: 220px;
+  flex: 0 1 auto;
+  max-height: 42vh;
+}
+
+.cine__bottle {
+  position: relative;
+  z-index: 2;
+  width: auto;
+  height: min(280px, 38vh);
+  max-width: min(190px, 42vw);
+  object-fit: contain;
+  filter:
+    drop-shadow(0 24px 38px rgba(0, 0, 0, 0.52))
+    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.35));
+  animation: cine-bottle-float 5s ease-in-out infinite;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+.cine__bottle.is-static {
+  animation: none;
+}
+
+@keyframes cine-bottle-float {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -8px, 0); }
+}
+
+.cine__bottle-glow {
+  position: absolute;
+  inset: 18% 22%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(242, 151, 12, 0.35) 0%,
+    transparent 70%
+  );
+  filter: blur(48px);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Progress rail with responsive stepper buttons */
+.cine__rail {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  margin-top: 0.5rem;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: rgba(246, 241, 228, 0.6);
+}
+
+.cine__rail-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(246, 241, 228, 0.88);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.cine__rail-nav-btn:hover {
+  background: rgba(242, 151, 12, 0.28);
+  border-color: var(--color-orange, #f2970c);
+  color: #ffffff;
+  transform: scale(1.08);
+}
+
+.cine__rail-nav-btn:active {
+  transform: scale(0.92);
+}
+
+.cine__rail-num {
+  color: var(--color-orange, #f2970c);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9rem;
+}
+
+.cine__rail-total {
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+}
+
+.cine__rail-track {
+  position: relative;
+  flex: 1;
+  height: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.cine__rail-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+.cine__rail-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  transform: translateY(-50%);
+  transform-origin: left center;
+  background: linear-gradient(
+    90deg,
+    var(--color-orange, #f2970c),
+    #ffcf7a
+  );
+  border-radius: 999px;
+  z-index: 1;
+}
+
+.cine__rail-ticks {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cine__rail-tick {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.cine__rail-tick.is-on {
+  background: var(--color-orange, #f2970c);
+  transform: scale(1.4);
+}
+
+/* ——— RIGHT COLUMN: Card ——— */
+.cine__right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.cine__card {
+  width: 100%;
+  max-width: 440px;
+  padding: clamp(1.5rem, 2.4vw, 2.2rem);
+  border-radius: 20px;
+  background: rgba(12, 11, 6, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow:
+    0 30px 60px -24px rgba(0, 0, 0, 0.6),
+    0 8px 20px -12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #f6f1e4;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  user-select: none;
+}
+
+.cine__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.cine__card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.cine__card-index {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: rgba(246, 241, 228, 0.55);
+}
+
+.cine__card-index em {
+  font-style: normal;
+  color: var(--color-orange, #f2970c);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.cine__card-index span {
+  opacity: 0.35;
+}
+
+.cine__card-category {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-orange, #f2970c);
+}
+
+.cine__card-swipe-hint {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(246, 241, 228, 0.6);
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: inline-flex;
+  align-items: center;
+}
+
+.cine__card-name {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(2rem, 3.4vw, 2.9rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #ffffff;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.5);
+}
+
+.cine__card-desc {
+  font-size: 0.92rem;
+  line-height: 1.55;
+  margin: 0;
+  color: rgba(246, 241, 228, 0.82);
+}
+
+.cine__card-benefit {
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cine__card-benefit-label {
+  display: block;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-orange, #f2970c);
+  margin-bottom: 0.35rem;
+}
+
+.cine__card-benefit p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(246, 241, 228, 0.92);
+}
+
+.cine__card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.66rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.cine__card-next-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cine__card-foot-label {
+  color: rgba(246, 241, 228, 0.4);
+}
+
+.cine__card-foot-next {
+  color: rgba(246, 241, 228, 0.85);
+}
+
+.cine__card-glossary-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-orange, #f2970c);
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.cine__card-glossary-link:hover {
+  transform: translateX(2px);
+  color: #ffcf7a;
+}
+
+/* ——— Bottom Scroll Cue ——— */
+.cine__cue {
+  position: absolute;
+  left: 50%;
+  bottom: calc(4.5vh + 1.25rem);
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  pointer-events: none;
+}
+
+.cine__cue-line {
+  width: 1px;
+  height: 26px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(246, 241, 228, 0.6),
+    transparent
+  );
+  animation: cine-cue-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes cine-cue-pulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(0.7); }
+  50%      { opacity: 1;   transform: scaleY(1); }
+}
+
+.cine__cue-label {
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.58rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 228, 0.45);
+  font-weight: 600;
+}
+
+/* ——— Desktop & Tablet Chapter Index ——— */
+.cine__chapters {
+  position: absolute;
+  top: 50%;
+  right: clamp(1rem, 2.5vw, 2.5rem);
+  transform: translateY(-50%);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  pointer-events: auto;
+}
+
+.cine__chapter {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: flex-end;
+  font-family: var(--font-body, sans-serif);
+  font-size: 0.6rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: rgba(246, 241, 228, 0.35);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+  pointer-events: auto;
+  outline: none;
+  touch-action: manipulation;
+}
+
+.cine__chapter:hover,
+.cine__chapter:focus-visible {
+  color: rgba(246, 241, 228, 0.95);
+}
+
+.cine__chapter-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(246, 241, 228, 0.3);
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.cine__chapter:hover .cine__chapter-dot,
+.cine__chapter:focus-visible .cine__chapter-dot {
+  background: rgba(246, 241, 228, 0.8);
+  transform: scale(1.4);
+}
+
+.cine__chapter-label {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transition:
+    max-width 0.3s ease,
+    opacity 0.25s ease;
+}
+
+.cine__chapter:hover .cine__chapter-label,
+.cine__chapter:focus-visible .cine__chapter-label {
+  max-width: 140px;
+  opacity: 1;
+}
+
+.cine__chapter.is-active {
+  color: var(--color-orange, #f2970c);
+}
+
+.cine__chapter.is-active .cine__chapter-dot {
+  background: var(--color-orange, #f2970c);
+  transform: scale(1.6);
+}
+
+.cine__chapter.is-active .cine__chapter-label {
+  max-width: 140px;
+  opacity: 1;
+}
+
+/* ——— Reduced Motion ——— */
+@media (prefers-reduced-motion: reduce) {
+  .cine__bottle { animation: none; }
+  .cine__cue-line { animation: none; }
+}
+
+/* ——— Tablet Optimization (641px to 1024px) ——— */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .cine {
+    /* Responsive tablet scroll pace: ~38vh per chapter */
+    min-height: calc(100vh + (var(--scene-count, 13) * 38vh));
+  }
+
+  .cine__inner {
+    grid-template-columns: minmax(220px, 0.75fr) minmax(300px, 1fr);
+    gap: clamp(1.25rem, 3vw, 2.5rem);
+    padding-top: calc(var(--nav-h, 72px) + 1.25rem);
+    padding-bottom: 5vh;
+  }
+
+  .cine__title {
+    font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+  }
+
+  .cine__bottle {
+    height: min(220px, 28vh);
+    max-width: 140px;
+    filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.45));
+  }
+
+  .cine__card {
+    padding: 1.4rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: rgba(12, 11, 6, 0.72);
+  }
+
+  .cine__chapters {
+    right: 0.85rem;
+    gap: 0.4rem;
+  }
+
+  /* Show dots only on tablet to save precious horizontal space */
+  .cine__chapter-label {
+    display: none;
+  }
+
+  .cine__chapter-dot {
+    width: 7px;
+    height: 7px;
+  }
+}
+
+/* ——— Mobile Responsive Optimization (<= 640px) ——— */
+@media (max-width: 640px) {
+  .cine {
+    /* Swift, ergonomic mobile scroll pace: ~32vh per chapter */
+    min-height: calc(100vh + (var(--scene-count, 13) * 32vh));
+  }
+
+  .cine__inner {
+    grid-template-columns: 1fr;
+    gap: 1.1rem;
+    padding-top: calc(var(--nav-h, 72px) + 0.4rem);
+    padding-bottom: 3.5vh;
+    align-content: center;
+  }
+
+  .cine__left {
+    align-items: center;
+    text-align: center;
+    gap: 0.45rem;
+  }
+
+  .cine__title {
+    max-width: none;
+    font-size: clamp(1.65rem, 6.2vw, 2.05rem);
+  }
+
+  .cine__lead {
+    max-width: 32ch;
+    margin-inline: auto;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .cine__bottle-wrap {
+    min-height: 120px;
+    margin-top: 0.2rem;
+    max-height: 20vh;
+  }
+
+  .cine__bottle {
+    width: auto;
+    height: min(150px, 18vh);
+    max-width: min(100px, 26vw);
+    animation-duration: 6s;
+    filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.4));
+  }
+
+  .cine__rail {
+    max-width: 300px;
+    margin-top: 0.2rem;
+  }
+
+  .cine__rail-nav-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .cine__right {
+    justify-content: center;
+  }
+
+  .cine__card {
+    max-width: 100%;
+    padding: 1.1rem;
+    gap: 0.7rem;
+    /* Lightweight 6px blur with opaque backing for 60fps on mobile */
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: rgba(12, 11, 6, 0.82);
+  }
+
+  .cine__card-name {
+    font-size: 1.7rem;
+  }
+
+  .cine__card-desc {
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .cine__card-benefit {
+    padding-top: 0.6rem;
+  }
+
+  .cine__card-benefit p {
+    font-size: 0.8rem;
+  }
+
+  .cine__chapters {
+    display: none;
+  }
+
+  .cine__cue {
+    display: none;
+  }
+}

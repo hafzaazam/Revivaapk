@@ -1,0 +1,80 @@
+.scroll-top {
+  position: fixed;
+  right: max(1rem, env(safe-area-inset-right));
+  bottom: max(1.15rem, env(safe-area-inset-bottom));
+  z-index: 90;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-pill, 10px);
+  color: var(--color-text-light, #fffdf6);
+  background: linear-gradient(
+    155deg,
+    var(--color-olive, #878038),
+    var(--color-olive-deep, #4f4b22)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-gold, #c4a574) 28%, transparent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-bg-dark, #1a1804) 35%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.35s var(--ease-out-expo, ease),
+    visibility 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+
+.scroll-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.scroll-top:hover {
+  background: linear-gradient(
+    155deg,
+    var(--color-orange, #f2970c),
+    var(--color-olive-mid, #6b652c)
+  );
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--color-orange, #f2970c) 28%, transparent);
+}
+
+.scroll-top:focus-visible {
+  outline: 2px solid var(--color-orange, #f2970c);
+  outline-offset: 3px;
+}
+
+.scroll-top:active {
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-top {
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    transform: none;
+  }
+
+  .scroll-top.is-visible {
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .scroll-top {
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 960px) {
+  .scroll-top {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}

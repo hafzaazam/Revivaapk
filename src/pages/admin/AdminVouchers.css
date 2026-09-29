@@ -1,0 +1,81 @@
+.adminVouchers {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 1.1rem;
+}
+
+.adminVouchers__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--admin-border, #e2dcc9);
+  border-radius: 12px;
+  background: var(--admin-card, #fffdf6);
+}
+
+.adminVouchers__item.is-off {
+  opacity: 0.66;
+}
+
+.adminVouchers__main {
+  min-width: 0;
+  flex: 1 1 22rem;
+}
+
+.adminVouchers__head {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.adminVouchers__code {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--admin-ink, #2a2a1e);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.adminVouchers__kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-olive, #878038);
+}
+
+.adminVouchers__desc {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--admin-muted, #77705c);
+}
+
+.adminVouchers__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin-top: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--admin-muted, #77705c);
+}
+
+.adminVouchers__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.adminVouchers__rule {
+  margin-top: 0.25rem;
+  max-width: 46rem;
+  line-height: 1.6;
+}

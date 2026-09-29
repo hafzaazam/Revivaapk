@@ -1,0 +1,348 @@
+/* ——— Revivaa Ingredients Glossary Page ——— */
+
+.ing-page {
+  padding-bottom: 5rem;
+  background: var(--color-bg, #fffdf6);
+  color: var(--color-text, #1a1804);
+  min-height: 100vh;
+}
+
+[data-theme='dark'] .ing-page {
+  background: #11120d;
+  color: #f7f3e8;
+}
+
+/* ——— Hero Section ——— */
+.ing-page__hero {
+  padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  padding-bottom: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+  max-width: 840px;
+  margin-inline: auto;
+}
+
+.ing-page__title {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(2rem, 4.2vw, 3.2rem);
+  line-height: 1.15;
+  color: var(--color-heading, #1a1804);
+}
+
+[data-theme='dark'] .ing-page__title {
+  color: #f7f3e8;
+}
+
+.ing-page__title em {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--color-orange, #f2970c);
+}
+
+.ing-page__lead {
+  font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+  line-height: 1.65;
+  color: var(--color-muted-on-light, #6a6648);
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+[data-theme='dark'] .ing-page__lead {
+  color: #a8a38c;
+}
+
+/* ——— Pillar Badges ——— */
+.ing-page__pillars {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-top: 2rem;
+}
+
+.ing-page__pillar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--color-heading, #1a1804);
+  background: var(--color-bg-elevated, #f7f1e4);
+  border: 1px solid var(--color-border, #d8d0b6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme='dark'] .ing-page__pillar {
+  background: #1c1d17;
+  color: #f7f3e8;
+  border-color: #333226;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.ing-page__pillar-icon {
+  color: var(--color-orange, #f2970c);
+  flex-shrink: 0;
+}
+
+/* ——— 13 Botanicals Grid Section ——— */
+.ing-page__grid-section {
+  margin-top: 2.5rem;
+  width: 100%;
+}
+
+.ing-page__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.75rem;
+  width: 100%;
+}
+
+/* ——— Botanical Card ——— */
+.ing-page__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--color-bg-elevated, #f7f1e4);
+  border: 1px solid var(--color-border, #d8d0b6);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 0;
+}
+
+[data-theme='dark'] .ing-page__card {
+  background: #171813;
+  border-color: #2e2c20;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.ing-page__card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-orange, #f2970c);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .ing-page__card:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Media wrapper */
+.ing-page__card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: var(--color-bg, #fffdf6);
+}
+
+.ing-page__card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.ing-page__card:hover .ing-page__card-img {
+  transform: scale(1.05);
+}
+
+.ing-page__card-badge {
+  position: absolute;
+  top: 0.85rem;
+  left: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(18, 17, 10, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-orange, #f2970c);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ing-page__card-num {
+  position: absolute;
+  top: 0.85rem;
+  right: 0.85rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 8px;
+  background: rgba(18, 17, 10, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-body, sans-serif);
+}
+
+/* Card Body */
+.ing-page__card-body {
+  padding: 1.35rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ing-page__card-name {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-heading, #1a1804);
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+
+[data-theme='dark'] .ing-page__card-name {
+  color: #f7f3e8;
+}
+
+.ing-page__card-desc {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--color-muted-on-light, #6a6648);
+  margin: 0 0 1rem;
+  flex: 1;
+}
+
+[data-theme='dark'] .ing-page__card-desc {
+  color: #a8a38c;
+}
+
+.ing-page__card-origin {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--color-olive, #878038);
+  padding-top: 0.75rem;
+  border-top: 1px dashed color-mix(in srgb, var(--color-border, #d8d0b6) 70%, transparent);
+}
+
+[data-theme='dark'] .ing-page__card-origin {
+  color: #cfc87f;
+  border-color: #2e2c20;
+}
+
+.ing-page__card-origin strong {
+  color: var(--color-heading, #1a1804);
+  font-weight: 600;
+}
+
+[data-theme='dark'] .ing-page__card-origin strong {
+  color: #f7f3e8;
+}
+
+/* ——— CTA Section ——— */
+.ing-page__cta-wrap {
+  margin-top: 4.5rem;
+}
+
+.ing-page__cta-box {
+  border-radius: 28px;
+  padding: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 4vw, 3rem);
+  text-align: center;
+  background: #14130d;
+  color: #f7f3e8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+}
+
+.ing-page__cta-content {
+  max-width: 620px;
+  margin-inline: auto;
+}
+
+.ing-page__cta-content h2 {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(1.75rem, 3vw, 2.3rem);
+  margin-top: 0.5rem;
+  margin-bottom: 0.85rem;
+  color: #ffffff;
+}
+
+.ing-page__cta-content p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(246, 241, 228, 0.75);
+  margin-bottom: 1.75rem;
+}
+
+.ing-page__cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ing-page__cta-link {
+  display: block;
+  width: 100%;
+  margin-top: 0.85rem;
+  font-size: 0.88rem;
+  color: rgba(246, 241, 228, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.ing-page__cta-link:hover {
+  color: var(--color-orange, #f2970c);
+  text-decoration: underline;
+}
+
+/* ——— Responsive Breakpoints ——— */
+@media (max-width: 1024px) {
+  .ing-page__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.35rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .ing-page__grid {
+    grid-template-columns: 1fr;
+    gap: 1.15rem;
+  }
+
+  .ing-page__hero {
+    padding-top: 1rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .ing-page__pillars {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .ing-page__pillar {
+    width: 100%;
+    max-width: 340px;
+    justify-content: center;
+  }
+
+  .ing-page__card-body {
+    padding: 1.15rem;
+  }
+
+  .ing-page__cta-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ing-page__cta-actions .clay-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

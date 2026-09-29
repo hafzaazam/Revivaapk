@@ -1,0 +1,237 @@
+/* ——— ReviewsManager ——— */
+.adminReviews {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+}
+
+.adminReviews__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 16px);
+  padding: var(--space-3, 24px);
+  border: 1px solid var(--color-border, #d8d0b6);
+  border-radius: var(--radius-md, 16px);
+  background: var(--color-bg-elevated, #f7f1e4);
+}
+
+.adminReviews__item.is-pending {
+  border-color: color-mix(in srgb, var(--color-orange, #f2970c) 45%, transparent);
+}
+
+.adminReviews__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1, 8px);
+}
+
+.adminReviews__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1, 8px);
+}
+
+.adminReviews__author {
+  font-weight: 600;
+  color: var(--color-heading, #1a1804);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adminReviews__status {
+  font-size: var(--text-xs, 0.78rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--color-bg-muted, #f0ead8);
+  color: var(--color-muted-on-light, #6a6648);
+}
+
+.adminReviews__status.is-approved {
+  color: var(--color-olive-deep, #4f4b22);
+  background: var(--color-olive-10, transparent);
+}
+
+.adminReviews__status.is-rejected {
+  color: var(--color-orange-deep, #6b4a12);
+  background: var(--color-orange-soft, transparent);
+}
+
+.adminReviews__text {
+  margin: 0;
+  color: var(--color-text, #1a1804);
+  line-height: 1.55;
+}
+
+.adminReviews__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--text-xs, 0.8rem);
+  color: var(--color-muted-on-light, #6a6648);
+}
+
+.adminReviews__mini-icon {
+  display: inline-block;
+  vertical-align: -2px;
+}
+
+.adminReviews__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1, 8px);
+}
+
+.admin-review-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid var(--color-border, #d8d0b6);
+  border-radius: var(--radius-pill, 10px);
+  background: var(--color-bg, #fffdf6);
+  color: var(--color-text, #1a1804);
+  font-size: var(--text-sm, 0.85rem);
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast, 180ms) ease,
+    background var(--duration-fast, 180ms) ease,
+    color var(--duration-fast, 180ms) ease;
+}
+
+.admin-review-btn:hover {
+  border-color: var(--color-olive, #878038);
+  color: var(--color-olive, #878038);
+}
+
+.admin-review-btn.is-featured {
+  border-color: var(--color-orange, #f2970c);
+  color: var(--color-orange, #f2970c);
+}
+
+.admin-review-btn--danger:hover {
+  border-color: var(--color-orange, #f2970c);
+  color: var(--color-orange, #f2970c);
+}
+
+/* ——— ReviewEditor ——— */
+.adminEditor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3, 24px);
+}
+
+.adminEditor__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.adminEditor__head h2 {
+  margin: 0;
+  font-size: var(--text-lg, 1.35rem);
+  color: var(--color-heading, #1a1804);
+}
+
+.adminEditor__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2, 16px);
+}
+
+.adminEditor__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--text-sm, 0.85rem);
+  color: var(--color-heading, #1a1804);
+}
+
+.adminEditor__field > span {
+  font-weight: 600;
+}
+
+.adminEditor__field input[type='text'],
+.adminEditor__field textarea,
+.adminEditor__field select {
+  width: 100%;
+  padding: 0.8rem 0.95rem;
+  border: 1.5px solid #c4baa0;
+  border-radius: var(--radius-sm, 10px);
+  background: #ffffff;
+  color: var(--color-text, #1a1804);
+  font-family: var(--font-body, sans-serif);
+  font-size: var(--text-sm, 0.9rem);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition:
+    border-color var(--duration-fast, 180ms) ease,
+    box-shadow var(--duration-fast, 180ms) ease;
+}
+
+[data-theme='dark'] .adminEditor__field input[type='text'],
+[data-theme='dark'] .adminEditor__field textarea,
+[data-theme='dark'] .adminEditor__field select {
+  background: #181914;
+  color: #f7f3e8;
+  border-color: #55523d;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.adminEditor__field input[type='text']:hover,
+.adminEditor__field textarea:hover,
+.adminEditor__field select:hover {
+  border-color: var(--color-olive, #878038);
+}
+
+.adminEditor__field input[type='text']:focus,
+.adminEditor__field textarea:focus,
+.adminEditor__field select:focus {
+  outline: none;
+  border-color: var(--color-olive, #878038);
+  box-shadow: 0 0 0 3.5px rgba(135, 128, 56, 0.22);
+}
+
+[data-theme='dark'] .adminEditor__field input[type='text']:focus,
+[data-theme='dark'] .adminEditor__field textarea:focus,
+[data-theme='dark'] .adminEditor__field select:focus {
+  border-color: #a49e52;
+  box-shadow: 0 0 0 3.5px rgba(164, 158, 82, 0.25);
+}
+
+.adminEditor__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3, 24px);
+}
+
+.adminEditor__check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-sm, 0.85rem);
+  color: var(--color-text, #1a1804);
+  cursor: pointer;
+}
+
+.adminEditor__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1, 8px);
+  padding-top: var(--space-2, 16px);
+  border-top: 1px solid var(--color-border, #d8d0b6);
+}
+
+.adminEditor__hint {
+  margin-left: auto;
+}
+
+@media (max-width: 720px) {
+  .adminEditor__grid {
+    grid-template-columns: 1fr;
+  }
+}

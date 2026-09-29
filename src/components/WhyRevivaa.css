@@ -1,0 +1,323 @@
+.why {
+  background: var(--section-wash);
+  padding-bottom: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.why__layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 4rem;
+  align-items: center;
+  padding-bottom: 5rem;
+}
+
+.why__copy .section-title {
+  max-width: 16ch;
+}
+
+.why__copy .section-title em {
+  font-style: italic;
+  color: var(--olive-mid);
+  font-weight: 400;
+}
+
+.why__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.why__card {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+  padding: 1.25rem 1.35rem;
+  border-radius: 26px;
+  border: 1px solid color-mix(in srgb, var(--color-olive, #878038) 22%, transparent);
+  cursor: default;
+  transition:
+    transform 0.35s var(--ease-out-expo, ease),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.why__card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--color-orange, #f2970c) 45%, transparent);
+  box-shadow:
+    var(--shadow-clay-hover, var(--shadow-lift)),
+    0 10px 28px color-mix(in srgb, var(--color-orange, #f2970c) 16%, transparent);
+}
+
+.why__icon {
+  position: relative;
+  flex-shrink: 0;
+  transition:
+    color 0.35s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.why__card:hover .why__icon {
+  color: var(--color-orange, #f2970c);
+  border-color: color-mix(in srgb, var(--color-orange, #f2970c) 35%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--color-orange, #f2970c) 22%, transparent);
+}
+
+.why__card h3 {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 550;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+  color: var(--heading);
+}
+
+.why__card p {
+  font-size: 0.92rem;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+/* ——— Icon micro-animations (hover, <400ms, subtle) ——— */
+.why__card--sway:hover .why__icon svg {
+  animation: why-leaf-sway 0.38s ease-in-out;
+  transform-origin: 50% 85%;
+}
+
+.why__card--grow:hover .why__icon svg {
+  animation: why-sprout-grow 0.36s ease-out;
+  transform-origin: 50% 90%;
+}
+
+.why__card--drip:hover .why__icon svg {
+  animation: why-drop-nudge 0.34s ease-out;
+}
+
+.why__drip {
+  position: absolute;
+  left: 50%;
+  top: 72%;
+  width: 4px;
+  height: 6px;
+  border-radius: 50% 50% 45% 45%;
+  background: var(--color-orange, #f2970c);
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% 0;
+}
+
+.why__card--drip:hover .why__drip {
+  animation: why-drip-fall 0.38s ease-in forwards;
+}
+
+@keyframes why-leaf-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  40% {
+    transform: rotate(-9deg);
+  }
+  70% {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes why-sprout-grow {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes why-drop-nudge {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(2px);
+  }
+}
+
+@keyframes why-drip-fall {
+  0% {
+    opacity: 0.85;
+    transform: translateY(0) scaleY(0.7);
+  }
+  70% {
+    opacity: 0.55;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px) scaleY(1.1);
+  }
+}
+
+.why__closing {
+  margin-top: 2.25rem;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  color: var(--heading);
+  font-weight: 400;
+}
+
+.why__closing em {
+  font-style: italic;
+  color: var(--olive);
+}
+
+.why__visual {
+  display: flex;
+  justify-content: center;
+}
+
+.why__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 400px);
+  aspect-ratio: 3 / 4;
+  border-radius: 40px;
+  background: linear-gradient(165deg, var(--clay-cream-a) 0%, var(--clay-b) 55%, var(--sage) 100%);
+  box-shadow: var(--shadow-clay);
+  overflow: hidden;
+  border: 1px solid var(--clay-border);
+  transition: box-shadow 0.45s ease;
+}
+
+.why__stage:hover {
+  box-shadow: var(--shadow-clay-hover);
+}
+
+.why__product {
+  position: relative;
+  z-index: 1;
+  width: 42%;
+  height: auto;
+  max-height: 78%;
+  object-fit: contain;
+  background: transparent;
+  filter: drop-shadow(0 12px 18px rgba(26, 24, 4, 0.22));
+  transition: transform 0.45s var(--ease);
+}
+
+.why__stage:hover .why__product {
+  transform: scale(1.03);
+}
+
+.why__bar {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(
+    155deg,
+    var(--color-olive-deep, #4f4b22),
+    var(--color-bg-dark, #1a1804)
+  );
+  color: var(--color-text-light, #fffdf6);
+  padding: 1.5rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-gold) 20%, transparent);
+}
+
+.why__bar-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.why__bar-inner span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 450;
+  opacity: 0.92;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .why__card:hover {
+    transform: none;
+  }
+
+  .why__card--sway:hover .why__icon svg,
+  .why__card--grow:hover .why__icon svg,
+  .why__card--drip:hover .why__icon svg,
+  .why__card--drip:hover .why__drip {
+    animation: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .why__layout {
+    grid-template-columns: 1fr;
+    gap: 2.75rem;
+  }
+
+  .why__copy .section-title {
+    max-width: none;
+  }
+
+  .why__stage {
+    max-width: 320px;
+    margin-inline: auto;
+  }
+
+  .why__bar-inner {
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .why__card {
+    padding: 0.95rem 1rem;
+    border-radius: 16px;
+    gap: 0.85rem;
+  }
+
+  .why__cards {
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .why__closing {
+    font-size: 1.35rem;
+  }
+
+  .why__stage {
+    border-radius: 22px;
+    max-width: min(280px, 78vw);
+  }
+
+  .why__layout {
+    gap: 2rem;
+    padding-bottom: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .why__bar-inner {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .why__bar-inner span {
+    font-size: 0.7rem;
+  }
+}

@@ -1,0 +1,306 @@
+/* Icon round buttons (theme toggle + bell) */
+.admin-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--admin-border, rgba(135, 128, 56, 0.2));
+  border-radius: 10px;
+  background: transparent;
+  color: var(--admin-ink, #2a2a1e);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.admin-icon-btn:hover {
+  background: var(--admin-inset, rgba(135, 128, 56, 0.08));
+}
+
+.admin-icon-btn:active {
+  transform: scale(0.95);
+}
+
+/* Notification bell + dropdown */
+.admin-notif {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin-notif__badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--color-orange, #f2970c);
+  color: #1a1804;
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px var(--admin-shell-bg, var(--color-bg, #fffdf6));
+}
+
+.admin-notif__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 40;
+  width: min(92vw, 340px);
+  border-radius: 14px;
+  border: 1px solid var(--admin-border, rgba(135, 128, 56, 0.2));
+  background: var(--admin-panel, #fff);
+  color: var(--admin-ink, #2a2a1e);
+  box-shadow: 0 18px 44px color-mix(in srgb, #1a1804 26%, transparent);
+  overflow: hidden;
+  animation: admin-pop 0.18s var(--ease-out-expo, ease-out);
+}
+
+@keyframes admin-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.admin-notif__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--admin-border, rgba(135, 128, 56, 0.14));
+}
+
+.admin-notif__head strong {
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+.admin-notif__tools {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.admin-notif__tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-muted, #77705c);
+  cursor: pointer;
+}
+
+.admin-notif__tool:hover {
+  background: var(--admin-inset, rgba(135, 128, 56, 0.08));
+  color: var(--admin-ink, #2a2a1e);
+}
+
+.admin-notif__body {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.admin-notif__empty {
+  margin: 0;
+  padding: 1.1rem 0.9rem;
+  color: var(--admin-muted, #77705c);
+  font-size: 0.84rem;
+  text-align: center;
+}
+
+.admin-notif__list {
+  list-style: none;
+  margin: 0;
+  padding: 0.35rem;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-notif__list li > button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-notif__list li > button:hover {
+  background: var(--admin-inset, rgba(135, 128, 56, 0.08));
+}
+
+.admin-notif__dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-orange, #f2970c);
+}
+
+.admin-notif__who {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+.admin-notif__who strong {
+  font-size: 0.86rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-notif__who span {
+  font-size: 0.76rem;
+  color: var(--admin-muted, #77705c);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-notif__at {
+  flex: none;
+  font-size: 0.72rem;
+  color: var(--admin-muted, #77705c);
+}
+
+.admin-notif__foot {
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  border-top: 1px solid var(--admin-border, rgba(135, 128, 56, 0.14));
+  font-size: 0.72rem;
+  color: var(--admin-muted, #77705c);
+}
+
+.admin-notif__foot em {
+  font-style: normal;
+  opacity: 0.8;
+}
+
+/* Toast stack (bottom-right) */
+.admin-toasts {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 80;
+  display: grid;
+  gap: 0.6rem;
+  width: min(92vw, 340px);
+  pointer-events: none;
+}
+
+.admin-toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.75rem;
+  border-radius: 14px;
+  border: 1px solid var(--admin-border, rgba(135, 128, 56, 0.22));
+  background: var(--admin-panel, #fff);
+  color: var(--admin-ink, #2a2a1e);
+  box-shadow: 0 16px 40px color-mix(in srgb, #1a1804 26%, transparent);
+  animation: toast-in 0.28s var(--ease-out-expo, ease-out);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.admin-toast__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-orange, #f2970c) 20%, transparent);
+  color: #a86a00;
+}
+
+.admin-toast__body {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-toast__body strong {
+  font-size: 0.88rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-toast__body span {
+  font-size: 0.78rem;
+  color: var(--admin-muted, #77705c);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-toast__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--admin-muted, #77705c);
+  cursor: pointer;
+}
+
+.admin-toast__close:hover {
+  background: var(--admin-inset, rgba(135, 128, 56, 0.1));
+  color: var(--admin-ink, #2a2a1e);
+}
+
+@media (max-width: 560px) {
+  .admin-toasts {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+}

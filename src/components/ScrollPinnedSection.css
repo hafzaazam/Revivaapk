@@ -1,0 +1,206 @@
+/* Scroll-scrubbed sticky pin shell — Story / Difference / future tab sections */
+
+.scroll-pin {
+  position: relative;
+  height: var(--scroll-pin-h, 240vh);
+}
+
+.scroll-pin__sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: calc(var(--nav-h) + 0.5rem) 0 1.5rem;
+}
+
+/*
+ * Single-active panel stack (Market Gap / Story tabs).
+ * Active = position:relative (sizes the stack). Inactive = absolute, no layout width.
+ * Never put panels in a horizontal flex/grid row — that squeezes them to 1/N width.
+ */
+.pin-panel-stack {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pin-panel-stack__panel {
+  width: 100%;
+  pointer-events: none;
+}
+
+.pin-panel-stack__panel.is-active {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.pin-panel-stack__panel:not(.is-active) {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.scroll-pin__progress {
+  position: absolute;
+  top: var(--nav-h);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: color-mix(in srgb, var(--color-olive, #878038) 18%, transparent);
+  z-index: 5;
+}
+
+.scroll-pin__progress-fill {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-gold, #c4a574),
+    var(--color-olive, #878038),
+    var(--color-orange, #f2970c)
+  );
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+.scroll-pin__dots {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  translate: 0 -50%;
+  display: flex;
+  justify-content: space-between;
+  padding-inline: max(1.25rem, calc((100vw - 1140px) / 2));
+  pointer-events: none;
+}
+
+.scroll-pin__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-olive, #878038) 28%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-olive, #878038) 35%, transparent);
+  transition: background 0.35s var(--ease-out-expo, ease), transform 0.35s var(--ease-out-expo, ease);
+}
+
+.scroll-pin__dot.is-passed {
+  background: color-mix(in srgb, var(--color-gold, #c4a574) 70%, transparent);
+}
+
+.scroll-pin__dot.is-active {
+  background: var(--color-orange, #f2970c);
+  transform: scale(1.25);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-orange, #f2970c) 22%, transparent);
+}
+
+.scroll-pin__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  position: relative;
+  z-index: 3;
+}
+
+.scroll-pin__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted, var(--color-text-muted));
+  background: var(--surface, var(--color-bg-elevated));
+  border: 1px solid var(--border, var(--color-border));
+  transition: color 0.35s ease, background 0.35s ease, border-color 0.35s ease, transform 0.25s ease;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.scroll-pin__tab:hover {
+  color: var(--heading, var(--color-heading));
+  border-color: var(--border-strong, var(--color-border));
+  transform: translateY(-2px);
+}
+
+.scroll-pin__tab:focus-visible {
+  outline: 2px solid var(--color-orange, #f2970c);
+  outline-offset: 2px;
+}
+
+.scroll-pin__tab em {
+  font-style: normal;
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  opacity: 0.5;
+}
+
+.scroll-pin__tab.is-active {
+  color: var(--color-text-light, #fffdf6);
+  background: linear-gradient(155deg, var(--color-olive, #878038), var(--color-olive-deep, #4f4b22));
+  border-color: color-mix(in srgb, var(--color-gold, #c4a574) 22%, transparent);
+}
+
+.scroll-pin__tab.is-active em {
+  color: var(--color-gold-soft, #e8dcc4);
+  opacity: 1;
+}
+
+.scroll-pin__body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/*
+ * Reduced-motion / .is-static: unpin, grow with content, keep everything readable.
+ * Section authors should also force panel opacity/transform to rest in CSS.
+ */
+.scroll-pin.is-static {
+  height: auto !important;
+}
+
+.scroll-pin.is-static .scroll-pin__sticky {
+  position: relative;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding-block: calc(var(--nav-h) + 1.5rem) 2.5rem;
+}
+
+.scroll-pin.is-static .scroll-pin__progress {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-pin {
+    height: auto !important;
+  }
+
+  .scroll-pin .scroll-pin__sticky {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
+
+  .scroll-pin .scroll-pin__progress {
+    display: none;
+  }
+}

@@ -1,0 +1,128 @@
+.ac-chart {
+  position: relative;
+}
+
+.ac-chart__empty {
+  margin: 0;
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--admin-muted, #77705c);
+  font-size: 0.9rem;
+}
+
+.ac-chart__wrap {
+  position: relative;
+  height: 100%;
+}
+
+.ac-grid {
+  stroke: rgba(135, 128, 56, 0.14);
+  stroke-width: 1;
+}
+
+.ac-axis-y {
+  font-size: 10px;
+  fill: var(--admin-muted, #77705c);
+}
+
+.ac-axis-x {
+  font-size: 10px;
+  fill: var(--admin-muted, #77705c);
+}
+
+.ac-cursor {
+  stroke: var(--admin-muted, #77705c);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.ac-tooltip {
+  position: absolute;
+  top: 8px;
+  z-index: 3;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  background: #221f0a;
+  color: #f3ecd8;
+  font-size: 0.8rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.ac-tooltip strong {
+  font-weight: 600;
+}
+
+.ac-tooltip span {
+  color: #d9cfae;
+}
+
+.ac-donut {
+  display: grid;
+  gap: 1rem;
+}
+
+.ac-donut__track {
+  fill: none;
+  stroke: rgba(135, 128, 56, 0.12);
+  stroke-width: 18;
+}
+
+.ac-donut__arc {
+  fill: none;
+  stroke-width: 18;
+}
+
+.ac-donut__total {
+  font-family: var(--font-display, Georgia, serif);
+  font-size: 1.5rem;
+  fill: var(--admin-ink, #2a2a1e);
+}
+
+.ac-donut__label {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--admin-muted, #77705c);
+}
+
+.ac-donut__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.ac-donut__legend li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.ac-donut__swatch {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border-radius: 3px;
+  align-self: center;
+}
+
+.ac-donut__name {
+  color: var(--admin-ink, #2a2a1e);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ac-donut__value {
+  color: var(--admin-muted, #77705c);
+  white-space: nowrap;
+}

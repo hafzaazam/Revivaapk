@@ -1,0 +1,30 @@
+/* ScrollReveal — shared entrance variants. Content stays in DOM always. */
+
+.scroll-reveal {
+  /* Avoid permanent will-change — promotes layers site-wide */
+}
+
+.scroll-reveal.is-static,
+.scroll-reveal.is-static .scroll-reveal__item {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+  clip-path: none !important;
+}
+
+.scroll-reveal--mask-wipe-left,
+.scroll-reveal--mask-wipe-right {
+  display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal .scroll-reveal__item {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

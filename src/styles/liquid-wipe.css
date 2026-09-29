@@ -1,0 +1,17 @@
+/**
+ * Reusable liquid / oil section-transition utilities.
+ * Prefer `<OilTransition />` between major sections (see README / lib/motion.js).
+ * Clip helpers remain for rare in-section pours (e.g. hero scroll-out).
+ */
+
+.liquid-wipe {
+  --liquid-ease: cubic-bezier(0.6, 0.04, 0.3, 1);
+  --liquid-ms: 1200ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-wipe {
+    clip-path: none !important;
+    transition: opacity 400ms ease;
+  }
+}

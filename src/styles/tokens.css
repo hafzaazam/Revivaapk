@@ -1,0 +1,220 @@
+/**
+ * revivaa design tokens
+ * ---------------------------------------------------------------------------
+ * Stack: Vite + React + plain CSS (no Tailwind). Framer Motion for motion.
+ *
+ * Import once at the top of the app stylesheet chain (see main.jsx).
+ * Prefer these names in all NEW work. Legacy --olive / --cream aliases exist
+ * at the bottom for gradual migration of older components.
+ *
+ * Theme: documentElement[data-theme="light" | "dark"] (see ThemeProvider).
+ * ---------------------------------------------------------------------------
+ */
+
+:root {
+  /* ——— Brand primitives ——— */
+  --color-olive: #878038;
+  --color-orange: #f2970c;
+  --color-bg-dark: #1a1804;
+  --color-bg-light: #fffdf6;
+  --color-text-light: #fffdf6;
+  --color-text-dark: #1a1804;
+
+  /* Olive tints (olive mixed toward light / transparent for surfaces) */
+  --color-olive-10: color-mix(in srgb, var(--color-olive) 10%, transparent);
+  --color-olive-20: color-mix(in srgb, var(--color-olive) 20%, transparent);
+  --color-olive-40: color-mix(in srgb, var(--color-olive) 40%, transparent);
+  --color-olive-soft: color-mix(in srgb, var(--color-olive) 18%, var(--color-bg-light));
+  --color-olive-mid: #6b652c;
+  --color-olive-deep: #4f4b22;
+
+  /* Orange accents */
+  --color-orange-glow: color-mix(in srgb, var(--color-orange) 28%, transparent);
+  --color-orange-soft: color-mix(in srgb, var(--color-orange) 14%, transparent);
+  --color-orange-deep: color-mix(in srgb, var(--color-orange) 70%, #1a1804);
+
+  /* Neutrals / elevated surfaces */
+  --color-bg-dark-elevated: #242014;
+  --color-bg-dark-muted: #2a2610;
+  --color-bg-light-elevated: #f7f1e4;
+  --color-bg-light-muted: #f0ead8;
+  --color-border-on-light: color-mix(in srgb, var(--color-olive) 18%, transparent);
+  --color-border-on-dark: color-mix(in srgb, var(--color-orange) 22%, var(--color-olive) 12%, transparent);
+  --color-muted-on-light: #6a6648;
+  --color-muted-on-dark: #a8a07c;
+  --color-gold: #c4a574;
+  --color-gold-soft: #e8dcc4;
+
+  /* ——— Semantic (default = light) ——— */
+  --color-bg: var(--color-bg-light);
+  --color-bg-elevated: var(--color-bg-light-elevated);
+  --color-bg-muted: var(--color-bg-light-muted);
+  --color-text: var(--color-text-dark);
+  --color-text-muted: var(--color-muted-on-light);
+  --color-heading: var(--color-text-dark);
+  --color-border: var(--color-border-on-light);
+  --color-accent: var(--color-olive);
+  --color-accent-hot: var(--color-orange);
+  --color-on-accent: var(--color-text-light);
+
+  /* ——— Typography ———
+   * Display: Fraunces (locked) — soft optical serif, Canela-adjacent.
+   * Body: Outfit — clean grotesk for UI/body.
+   */
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+
+  /* Fluid type scale (mobile-first, smooth clamp) */
+  --text-xs: clamp(0.7rem, 0.68rem + 0.1vw, 0.75rem);
+  --text-sm: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+  --text-base: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);
+  --text-md: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-lg: clamp(1.25rem, 1.1rem + 0.55vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --text-2xl: clamp(1.85rem, 1.4rem + 1.6vw, 2.75rem);
+  --text-3xl: clamp(2.25rem, 1.6rem + 2.4vw, 3.5rem);
+  --text-4xl: clamp(2.75rem, 1.8rem + 3.2vw, 4.5rem);
+  --text-display: clamp(3rem, 2rem + 4vw, 6.5rem);
+
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.65;
+  --tracking-display: -0.02em;
+  --tracking-label: 0.22em;
+
+  /* ——— Spacing (8px base) ——— */
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 48px;
+  --space-6: 64px;
+  --space-7: 96px;
+  --space-8: 128px;
+
+  /* ——— Radius ——— */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 10px; /* sharper buttons / nav chips — was full pill */
+
+  /* ——— Elevation ——— */
+  --shadow-soft: 0 12px 28px color-mix(in srgb, var(--color-bg-dark) 10%, transparent);
+  --shadow-lift: 0 16px 40px color-mix(in srgb, var(--color-bg-dark) 14%, transparent);
+  --shadow-orange-glow: 0 10px 28px var(--color-orange-glow);
+  --shadow-clay:
+    5px 6px 12px color-mix(in srgb, var(--color-bg-dark) 10%, transparent),
+    -3px -3px 8px color-mix(in srgb, #fff 70%, transparent),
+    inset 1px 1px 3px color-mix(in srgb, #fff 55%, transparent),
+    inset -2px -2px 4px color-mix(in srgb, var(--color-olive) 8%, transparent);
+
+  /* ——— Motion ——— */
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 180ms;
+  --duration-base: 350ms;
+  --duration-slow: 600ms;
+
+  /* ——— Layout chrome & Fluid Containers ——— */
+  --nav-h: 76px;
+  --nav-height: var(--nav-h);
+  --container-padding: clamp(1rem, 3.5vw, 2.5rem);
+  --card-padding: clamp(1rem, 3vw, 2rem);
+  --container: min(1180px, calc(100% - var(--container-padding) * 2));
+  --space-page-top: clamp(4.25rem, 7vw, 6.25rem);
+
+  color-scheme: light;
+}
+
+@media (max-width: 960px) {
+  :root {
+    --nav-h: 60px;
+  }
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-bg: var(--color-bg-dark);
+  --color-bg-elevated: var(--color-bg-dark-elevated);
+  --color-bg-muted: var(--color-bg-dark-muted);
+  --color-text: var(--color-text-light);
+  --color-text-muted: var(--color-muted-on-dark);
+  --color-heading: var(--color-text-light);
+  --color-border: var(--color-border-on-dark);
+  --color-accent: var(--color-olive);
+  --color-accent-hot: var(--color-orange);
+  --color-on-accent: var(--color-text-light);
+
+  --shadow-soft: 0 14px 32px color-mix(in srgb, #000 40%, transparent);
+  --shadow-lift: 0 18px 40px color-mix(in srgb, #000 45%, transparent);
+  --shadow-clay:
+    5px 6px 14px color-mix(in srgb, #000 35%, transparent),
+    -2px -2px 8px color-mix(in srgb, var(--color-olive) 6%, transparent),
+    inset 1px 1px 2px color-mix(in srgb, #fff 4%, transparent),
+    inset -2px -2px 4px color-mix(in srgb, #000 25%, transparent);
+}
+
+/* Reduced motion: consumers should prefer these durations when mq matches */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 1ms;
+    --duration-base: 1ms;
+    --duration-slow: 1ms;
+  }
+}
+
+/**
+ * Legacy bridge — maps older component tokens → new system.
+ * Remove once all CSS is migrated to --color-* / --space-* names.
+ */
+:root,
+[data-theme='light'] {
+  --olive: var(--color-olive);
+  --olive-light: color-mix(in srgb, var(--color-olive) 65%, white);
+  --olive-mid: var(--color-olive-mid);
+  --forest: var(--color-olive-deep);
+  --forest-deep: var(--color-text-dark);
+  --cream: var(--color-bg-light);
+  --cream-deep: var(--color-bg-light-muted);
+  --ink: var(--color-text-dark);
+  --muted: var(--color-muted-on-light);
+  --gold: var(--color-gold);
+  --gold-soft: var(--color-gold-soft);
+  --amber: var(--color-orange);
+  --white: #ffffff;
+  --bg: var(--color-bg);
+  --bg-elevated: var(--color-bg-elevated);
+  --bg-muted: var(--color-bg-muted);
+  --heading: var(--color-heading);
+  --text: var(--color-text);
+  --border: var(--color-border);
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Outfit', system-ui, sans-serif;
+  --radius-clay: var(--radius-lg);
+  --radius-pill: 10px;
+  --ease: var(--ease-out-expo);
+  --nav-h: 80px;
+}
+
+[data-theme='dark'] {
+  --olive: #a39a4a;
+  --olive-light: #b8b06a;
+  --olive-mid: var(--color-olive);
+  --forest: #cfc9a0;
+  --forest-deep: #f5f0e0;
+  --cream: var(--color-bg-light);
+  --cream-deep: var(--color-bg-dark-muted);
+  --ink: var(--color-text-light);
+  --muted: var(--color-muted-on-dark);
+  --gold: #d4b88a;
+  --gold-soft: var(--color-gold-soft);
+  --amber: var(--color-orange);
+  --bg: var(--color-bg);
+  --bg-elevated: var(--color-bg-elevated);
+  --bg-muted: var(--color-bg-muted);
+  --heading: var(--color-heading);
+  --text: var(--color-text);
+  --border: var(--color-border);
+}
