@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Leaf,
   ChevronDown,
   Sun,
   Moon,
@@ -24,19 +23,27 @@ import './Navbar.css'
 const ICON = 18
 const ICON_STROKE = 1.75
 
+/**
+ * Mega menu content. Every link here has a unique destination —
+ * no two entries point to the same href.
+ */
 const mega = {
   collection: {
     title: 'The Collection',
     eyebrow: 'Pure Botanical Formulations',
     description:
       "Nourish, strengthen, and support healthier-looking hair with nature's finest cold-pressed oils.",
+    showProductCard: true,
     columns: [
       {
         heading: 'Products',
         links: [
           { label: 'All Products', href: '/shop', desc: 'Browse our complete range' },
-          { label: 'Revivaa Botanical Oil 150ml', href: '/product/revivaa-oil-150', desc: 'Our signature botanical elixir' },
-          { label: 'Shop Best Sellers', href: '/shop', desc: 'Loved by hundreds across Pakistan' },
+          {
+            label: 'Revivaa Botanical Oil 150ml',
+            href: '/product/revivaa-oil-150',
+            desc: 'Our signature botanical elixir',
+          },
         ],
       },
       {
@@ -45,29 +52,6 @@ const mega = {
           { label: '13 Pure Botanicals', href: '/#ingredients', desc: 'Cold-pressed root-to-tip care' },
           { label: 'The Daily Ritual', href: '/#why', desc: 'Lightweight & non-greasy' },
           { label: '100% Toxin-Free', href: '/#difference', desc: 'No parabens, no mineral oils' },
-        ],
-      },
-    ],
-  },
-  about: {
-    title: 'About Revivaa',
-    eyebrow: 'Our Story & Ideology',
-    description:
-      'Rooted in natural care, confidence, and consistency. Discover our brand journey.',
-    columns: [
-      {
-        heading: 'Our Story',
-        links: [
-          { label: 'About Revivaa', href: '/about', desc: 'Our philosophy & core belief' },
-          { label: "Revivaa's Ideology", href: '/about', desc: 'Natural care & self-love journey' },
-          { label: 'Quality Pillars', href: '/about', desc: 'Purity, performance & ethics' },
-        ],
-      },
-      {
-        heading: 'The Ritual',
-        links: [
-          { label: 'How It Works', href: '/how-it-works', desc: '3-step ritual & hair timeline' },
-          { label: 'The Difference', href: '/#difference', desc: 'Botanicals vs synthetics' },
         ],
       },
     ],
@@ -141,9 +125,8 @@ export default function Navbar() {
   }, [])
 
   /**
-   * Keyboard users need a way out of the mega panel. The panel is driven by
-   * `onFocus` (opens) so it never closes on hover alone; without this, tabbing
-   * past the last link leaves an open panel stranded over the page.
+   * Keyboard users need a way out of the mega panel. Tabbing past the last
+   * link would otherwise leave an open panel stranded over the page.
    */
   useEffect(() => {
     if (!open) return undefined
@@ -158,9 +141,27 @@ export default function Navbar() {
   const close = () => setOpen(null)
 
   /**
+   * Mega triggers:
+   * - hover opens the panel
+   * - keyboard focus (:focus-visible only) opens the panel, so a mouse click
+   *   doesn't double-fire focus + click
+   * - a mouse/touch click always opens (never closes a panel hover just
+   *   opened); a keyboard-activated click (detail === 0) toggles
+   */
+  const triggerProps = (key) => ({
+    'aria-expanded': open === key,
+    'aria-controls': `mega-${key}`,
+    onMouseEnter: () => setOpen(key),
+    onFocus: (e) => {
+      if (e.currentTarget.matches(':focus-visible')) setOpen(key)
+    },
+    onClick: (e) => setOpen(open === key && e.detail === 0 ? null : key),
+  })
+
+  /**
    * Handles anchor links like "/#ingredients".
-   * - If we're already on the target route: smooth-scroll to the element.
-   * - Otherwise: full navigation so the browser lands on the hash.
+   * - Already on the target route: smooth-scroll to the element.
+   * - Otherwise: navigate so the router lands on the hash.
    */
   const handleHashNav = (e, href) => {
     e.preventDefault()
@@ -181,6 +182,8 @@ export default function Navbar() {
 
     navigate(href)
   }
+
+  const isActive = (path) => location.pathname === path
 
   return (
     <>
@@ -213,13 +216,7 @@ export default function Navbar() {
             <button
               type="button"
               className={`nav__item ${open === 'collection' ? 'is-active' : ''}`}
-              aria-expanded={open === 'collection'}
-              aria-controls="mega-collection"
-              onMouseEnter={() => setOpen('collection')}
-              onFocus={() => setOpen('collection')}
-              onClick={() =>
-                setOpen(open === 'collection' ? null : 'collection')
-              }
+              {...triggerProps('collection')}
             >
               Collection{' '}
               <ChevronDown size={14} strokeWidth={2} className="nav__chev" aria-hidden />
@@ -227,78 +224,44 @@ export default function Navbar() {
 
             <Link
               to="/how-it-works"
-              className={`nav__item ${
-                location.pathname === '/how-it-works' ? 'is-active' : ''
-              }`}
-              aria-current={
-                location.pathname === '/how-it-works' ? 'page' : undefined
-              }
-              onMouseEnter={() => setOpen(null)}
+              className={`nav__item ${isActive('/how-it-works') ? 'is-active' : ''}`}
+              aria-current={isActive('/how-it-works') ? 'page' : undefined}
+              onMouseEnter={close}
               onClick={close}
             >
-              <Compass
-                size={ICON}
-                strokeWidth={ICON_STROKE}
-                className="nav__item-icon"
-                aria-hidden
-              />
+              <Compass size={ICON} strokeWidth={ICON_STROKE} className="nav__item-icon" aria-hidden />
               How It Works
             </Link>
 
-            <button
-              type="button"
-              className={`nav__item ${
-                open === 'about' || location.pathname === '/about'
-                  ? 'is-active'
-                  : ''
-              }`}
-              aria-expanded={open === 'about'}
-              aria-controls="mega-about"
-              onMouseEnter={() => setOpen('about')}
-              onFocus={() => setOpen('about')}
-              onClick={() => setOpen(open === 'about' ? null : 'about')}
+            <Link
+              to="/about"
+              className={`nav__item ${isActive('/about') ? 'is-active' : ''}`}
+              aria-current={isActive('/about') ? 'page' : undefined}
+              onMouseEnter={close}
+              onClick={close}
             >
-              About{' '}
-              <ChevronDown size={14} strokeWidth={2} className="nav__chev" aria-hidden />
-            </button>
+              About
+            </Link>
 
             <Link
               to="/contact"
-              className={`nav__item ${
-                location.pathname === '/contact' ? 'is-active' : ''
-              }`}
-              aria-current={
-                location.pathname === '/contact' ? 'page' : undefined
-              }
-              onMouseEnter={() => setOpen(null)}
+              className={`nav__item ${isActive('/contact') ? 'is-active' : ''}`}
+              aria-current={isActive('/contact') ? 'page' : undefined}
+              onMouseEnter={close}
               onClick={close}
             >
-              <MapPin
-                size={ICON}
-                strokeWidth={ICON_STROKE}
-                className="nav__item-icon"
-                aria-hidden
-              />
+              <MapPin size={ICON} strokeWidth={ICON_STROKE} className="nav__item-icon" aria-hidden />
               Contact
             </Link>
 
             <Link
               to="/track"
-              className={`nav__item ${
-                location.pathname === '/track' ? 'is-active' : ''
-              }`}
-              aria-current={
-                location.pathname === '/track' ? 'page' : undefined
-              }
-              onMouseEnter={() => setOpen(null)}
+              className={`nav__item ${isActive('/track') ? 'is-active' : ''}`}
+              aria-current={isActive('/track') ? 'page' : undefined}
+              onMouseEnter={close}
               onClick={close}
             >
-              <Truck
-                size={ICON}
-                strokeWidth={ICON_STROKE}
-                className="nav__item-icon"
-                aria-hidden
-              />
+              <Truck size={ICON} strokeWidth={ICON_STROKE} className="nav__item-icon" aria-hidden />
               Track Order
             </Link>
           </nav>
@@ -308,11 +271,7 @@ export default function Navbar() {
               type="button"
               className="nav__theme"
               onClick={toggleTheme}
-              aria-label={
-                theme === 'dark'
-                  ? 'Switch to light theme'
-                  : 'Switch to dark theme'
-              }
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
               {theme === 'dark' ? (
@@ -324,11 +283,7 @@ export default function Navbar() {
 
             {isAdmin ? (
               <>
-                <Link
-                  to="/admin"
-                  className="nav__item nav__account"
-                  onClick={close}
-                >
+                <Link to="/admin" className="nav__item nav__account" onClick={close}>
                   <Settings size={16} strokeWidth={ICON_STROKE} />
                   Admin
                 </Link>
@@ -361,7 +316,6 @@ export default function Navbar() {
             </button>
 
             <Link to="/shop" className="clay-btn nav__cta" onClick={close}>
-              <Leaf size={16} strokeWidth={2} />
               Shop Now
             </Link>
           </div>
@@ -376,67 +330,45 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              onMouseLeave={() => setOpen(null)}
+              onMouseLeave={close}
             >
               <div className="mega__inner container">
                 <div className="mega__intro clay-dark">
-                  <p className="mega__eyebrow">
-                    {mega[open].eyebrow || mega[open].title}
-                  </p>
+                  <p className="mega__eyebrow">{mega[open].eyebrow || mega[open].title}</p>
                   <h3>{mega[open].title}</h3>
                   <p>{mega[open].description}</p>
-                  <div className="mega__intro-box">
-                    <img
-                      src="/images/box.png"
-                      alt="Revivaa botanical hair oil box packaging"
-                      width={140}
-                      height={140}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <Link
-                      to="/product/revivaa-oil-150"
-                      onClick={close}
-                      className="mega__intro-link"
-                    >
-                      View Signature 150ml →
-                    </Link>
-                  </div>
+                  {mega[open].showProductCard && (
+                    <div className="mega__intro-box">
+                      <img
+                        src="/images/box.png"
+                        alt="Revivaa botanical hair oil box packaging"
+                        width={140}
+                        height={140}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <Link
+                        to="/product/revivaa-oil-150"
+                        onClick={close}
+                        className="mega__intro-link"
+                      >
+                        View Signature 150ml →
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 {mega[open].columns.map((col) => (
                   <div key={col.heading} className="mega__col">
                     <h4>{col.heading}</h4>
                     <ul>
-                      {col.links.map(({ label, href, desc, external }) => {
+                      {col.links.map(({ label, href, desc }) => {
                         const hasHash = href.includes('#')
-
-                        if (external) {
-                          return (
-                            <li key={label}>
-                              <a
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={close}
-                                className="mega__link clay-cream"
-                              >
-                                <span>
-                                  <strong>{label}</strong>
-                                  <small>{desc}</small>
-                                </span>
-                              </a>
-                            </li>
-                          )
-                        }
-
                         return (
-                          <li key={label}>
+                          <li key={href}>
                             <Link
                               to={href}
-                              onClick={(e) =>
-                                hasHash ? handleHashNav(e, href) : close()
-                              }
+                              onClick={(e) => (hasHash ? handleHashNav(e, href) : close())}
                               className="mega__link clay-cream"
                             >
                               <span>
@@ -458,69 +390,56 @@ export default function Navbar() {
         {open && (
           /* Click-outside target only. Escape and focus-out already close the
              menu, so this stays out of the a11y tree and the tab order. */
-          <div className="mega__backdrop" aria-hidden onClick={() => setOpen(null)} />
+          <div className="mega__backdrop" aria-hidden onClick={close} />
         )}
       </header>
 
-      {/* Mobile bottom dock — only mounted below 960px. Rendering it at every
-          width duplicated the primary nav in the accessibility tree while
-          `display: none` kept it out of the visual layout. */}
+      {/* Mobile bottom dock — only mounted below 960px so the primary nav
+          isn't duplicated in the accessibility tree at desktop widths. */}
       {showDock && (
         <nav
           className={`nav-dock ${hidden ? 'nav-dock--hidden' : ''}`}
           aria-label="Mobile quick actions"
         >
-        <Link
-          to="/shop"
-          className={`nav-dock__item ${
-            location.pathname === '/shop' ? 'is-active' : ''
-          }`}
-        >
-          <ShoppingBag size={20} strokeWidth={ICON_STROKE} aria-hidden />
-          <span>Shop</span>
-        </Link>
+          <Link to="/shop" className={`nav-dock__item ${isActive('/shop') ? 'is-active' : ''}`}>
+            <ShoppingBag size={20} strokeWidth={ICON_STROKE} aria-hidden />
+            <span>Shop</span>
+          </Link>
 
-        <Link
-          to="/how-it-works"
-          className={`nav-dock__item ${
-            location.pathname === '/how-it-works' ? 'is-active' : ''
-          }`}
-        >
-          <Compass size={20} strokeWidth={ICON_STROKE} aria-hidden />
-          <span>How It Works</span>
-        </Link>
+          <Link
+            to="/how-it-works"
+            className={`nav-dock__item ${isActive('/how-it-works') ? 'is-active' : ''}`}
+          >
+            <Compass size={20} strokeWidth={ICON_STROKE} aria-hidden />
+            <span>How It Works</span>
+          </Link>
 
-        <Link to="/" className="nav-dock__home" aria-label="Home">
-          <span className="nav-dock__home-ring">
-            <img src={logoUrl} alt="" width={28} height={28} />
-          </span>
-        </Link>
-
-        <Link
-          to="/track"
-          className={`nav-dock__item ${
-            location.pathname === '/track' ? 'is-active' : ''
-          }`}
-        >
-          <Truck size={20} strokeWidth={ICON_STROKE} aria-hidden />
-          <span>Track</span>
-        </Link>
-
-        <button
-          type="button"
-          data-cart="true"
-          className={`nav-dock__item ${bounce ? 'is-bouncing' : ''}`}
-          onClick={() => cart.setOpen(true)}
-          aria-label={`Cart, ${cart.count} items`}
-        >
-          <ShoppingBag size={20} strokeWidth={ICON_STROKE} aria-hidden />
-          <span>Cart</span>
-          {cart.count > 0 && (
-            <span className="nav-dock__count" aria-hidden>
-              {cart.count > 99 ? '99+' : cart.count}
+          <Link to="/" className="nav-dock__home" aria-label="Home">
+            <span className="nav-dock__home-ring">
+              <img src={logoUrl} alt="" width={28} height={28} />
             </span>
-          )}
-        </button>
+          </Link>
+
+          <Link to="/track" className={`nav-dock__item ${isActive('/track') ? 'is-active' : ''}`}>
+            <Truck size={20} strokeWidth={ICON_STROKE} aria-hidden />
+            <span>Track</span>
+          </Link>
+
+          <button
+            type="button"
+            data-cart="true"
+            className={`nav-dock__item ${bounce ? 'is-bouncing' : ''}`}
+            onClick={() => cart.setOpen(true)}
+            aria-label={`Cart, ${cart.count} items`}
+          >
+            <ShoppingBag size={20} strokeWidth={ICON_STROKE} aria-hidden />
+            <span>Cart</span>
+            {cart.count > 0 && (
+              <span className="nav-dock__count" aria-hidden>
+                {cart.count > 99 ? '99+' : cart.count}
+              </span>
+            )}
+          </button>
         </nav>
       )}
     </>

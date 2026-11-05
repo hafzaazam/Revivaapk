@@ -79,3 +79,35 @@
   max-width: 46rem;
   line-height: 1.6;
 }
+
+@media (max-width: 640px) {
+  .adminVouchers__item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 0.9rem;
+  }
+
+  .adminVouchers__main {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .adminVouchers__code {
+    font-size: 1.1rem;
+  }
+
+  .adminVouchers__actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-top: 0.65rem;
+    border-top: 1px solid var(--admin-border, #e2dcc9);
+  }
+
+  .adminVouchers__actions .admin-btn {
+    padding: 7px 12px;
+    min-height: 38px;
+    font-size: 0.82rem;
+  }
+}

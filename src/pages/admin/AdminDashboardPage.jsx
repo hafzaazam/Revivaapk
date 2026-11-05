@@ -100,6 +100,20 @@ export default function AdminDashboardPage({ homeHref }) {
     document.title = `Admin · ${section.charAt(0).toUpperCase() + section.slice(1)} · Revivaa`
   }, [section])
 
+  useEffect(() => {
+    if (!navOpen) return undefined
+    const onKey = (e) => {
+      if (e.key === 'Escape') setNavOpen(false)
+    }
+    const prevOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = prevOverflow
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [navOpen])
+
   const refresh = useCallback(async () => {
     setNotice('')
     const [o, p, c, r, v] = await Promise.all([
@@ -405,8 +419,18 @@ export default function AdminDashboardPage({ homeHref }) {
       {/* ——— Sidebar ——— */}
       <aside className={`admin-shell__side${navOpen ? ' is-open' : ''}`}>
         <div className="admin-shell__brand">
-          <span className="admin-login__eyebrow">revivaa</span>
-          <strong>Executive Admin</strong>
+          <div className="admin-shell__brand-text">
+            <span className="admin-login__eyebrow">revivaa</span>
+            <strong>Executive Admin</strong>
+          </div>
+          <button
+            type="button"
+            className="admin-shell__side-close"
+            aria-label="Close menu"
+            onClick={() => setNavOpen(false)}
+          >
+            <X size={20} />
+          </button>
         </div>
         <nav className="admin-shell__nav" aria-label="Admin sections">
           {NAV_ITEMS.map((item) => {
@@ -562,6 +586,29 @@ export default function AdminDashboardPage({ homeHref }) {
             </button>
           </div>
         </header>
+
+        {/* Mobile Horizontal Quick Navigation */}
+        <nav className="admin-shell__mobile-nav" aria-label="Quick section navigation">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon
+            const badge =
+              (item.id === 'orders' && stats.pendingOrders > 0 && stats.pendingOrders) ||
+              (item.id === 'reviews' && stats.pendingReviews > 0 && stats.pendingReviews) ||
+              null
+            return (
+              <button
+                type="button"
+                key={item.id}
+                className={`admin-shell__mobile-pill ${section === item.id ? 'is-active' : ''}`}
+                onClick={() => setActive(item.id)}
+              >
+                <Icon size={14} />
+                <span>{item.label}</span>
+                {badge != null && <span className="admin-shell__badge">{badge}</span>}
+              </button>
+            )
+          })}
+        </nav>
 
         {error && (
           <p className="admin-banner admin-banner--error" role="alert">

@@ -4,6 +4,7 @@ import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
 /* Landing is the critical path and stays eager; everything else is a separate
    chunk so the first paint never parses the admin dashboard or the blog. */
 import HomePage from './pages/HomePage'
+import WhatsAppFloat from './components/WhatsAppFloat'
 
 const ShopPage = lazy(() => import('./pages/ShopPage'))
 const ProductPage = lazy(() => import('./pages/ProductPage'))
@@ -81,6 +82,7 @@ export default function App() {
   return (
     <>
       <ScrollOnNavigate />
+      <WhatsAppFloat />
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           <Route path="/" element={<HomePage />} />

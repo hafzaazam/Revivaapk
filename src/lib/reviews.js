@@ -2,12 +2,19 @@ import { supabase, isSupabaseConfigured } from './supabase'
 import { cachedQuery, invalidateCache } from './apiCache'
 
 const VIDEO_EXT = /\.(mp4|webm|ogg|ogv|mov|m4v|m3u8)(\?.*)?$/i
-const VIDEO_HOSTS = /(youtube\.com|youtu\.be|vimeo\.com|dailymotion\.com|tiktok\.com)/i
+const VIDEO_HOSTS = /(youtube\.com|youtu\.be|vimeo\.com|dailymotion\.com|tiktok\.com|instagram\.com|instagr\.am|cloudinary\.com\/.*\/video)/i
 
 export function classifyMediaUrl(url) {
   const u = String(url || '').trim()
   if (!u) return null
-  if (VIDEO_EXT.test(u) || VIDEO_HOSTS.test(u)) return 'video'
+  if (
+    VIDEO_EXT.test(u) ||
+    VIDEO_HOSTS.test(u) ||
+    /\/video\//i.test(u) ||
+    u.startsWith('data:video/')
+  ) {
+    return 'video'
+  }
   return 'image'
 }
 
@@ -17,17 +24,42 @@ export function youtubeId(raw) {
   return m ? m[1] : null
 }
 
+export function instagramShortcode(raw) {
+  const u = String(raw || '').trim()
+  const m = u.match(/(?:instagram\.com|instagr\.am)\/(?:reel|reels|p)\/([A-Za-z0-9_-]+)/i)
+  return m ? m[1] : null
+}
+
+export function isInstagramUrl(raw) {
+  return Boolean(instagramShortcode(raw))
+}
+
+export function isEmbedVideoUrl(raw) {
+  const u = String(raw || '').trim()
+  return Boolean(
+    youtubeId(u) ||
+    /vimeo\.com\/(?:video\/)?(\d+)/i.test(u) ||
+    instagramShortcode(u)
+  )
+}
+
 export function videoEmbedUrl(raw) {
   const u = String(raw || '').trim()
-  if (youtubeId(u)) return `https://www.youtube.com/embed/${youtubeId(u)}`
-  const vimeo = u.match(/vimeo\.com\/(?:video\/)?(\d+)/)
+  const yt = youtubeId(u)
+  if (yt) return `https://www.youtube.com/embed/${yt}`
+  const vimeo = u.match(/vimeo\.com\/(?:video\/)?(\d+)/i)
   if (vimeo) return `https://player.vimeo.com/video/${vimeo[1]}`
+  const ig = instagramShortcode(u)
+  if (ig) return `https://www.instagram.com/reel/${ig}/embed/`
   return u
 }
 
 export function videoThumbUrl(raw) {
-  const id = youtubeId(raw)
-  if (id) return `https://img.youtube.com/vi/${id}/hqdefault.jpg`
+  const u = String(raw || '').trim()
+  const yt = youtubeId(u)
+  if (yt) return `https://img.youtube.com/vi/${yt}/hqdefault.jpg`
+  const ig = instagramShortcode(u)
+  if (ig) return `https://www.instagram.com/p/${ig}/media/?size=l`
   return null
 }
 
@@ -36,14 +68,22 @@ function sortByPosition(list) {
 }
 
 export function normalizeReview(row) {
-  const media = sortByPosition(row.media).map((m) => ({
-    id: m.id,
-    kind: m.kind,
-    url: m.url,
-    path: m.path || null,
-    posterUrl: m.poster_url || null,
-    position: m.position ?? 0,
-  }))
+  const media = sortByPosition(row.media).map((m) => {
+    const rawUrl = m.url || ''
+    const kind = m.kind || classifyMediaUrl(rawUrl) || 'image'
+    const poster =
+      m.poster_url ||
+      m.posterUrl ||
+      (kind === 'video' ? videoThumbUrl(rawUrl) : null)
+    return {
+      id: m.id,
+      kind,
+      url: rawUrl,
+      path: m.path || null,
+      posterUrl: poster,
+      position: m.position ?? 0,
+    }
+  })
   return {
     id: row.id,
     productId: row.product_id,
@@ -122,16 +162,44 @@ export async function fetchHomeTestimonials(limit = 9) {
 export async function fetchInfluencerReels(limit = 6) {
   if (!isSupabaseConfigured || !supabase) return { data: [], error: null }
   return cachedQuery(`reviews:reels:${limit}`, async () => {
+    // 1. Fetch approved influencer reviews
     const { data, error } = await supabase
       .from('reviews')
-      .select('*, media:review_media(*)')
+      .select('*, media:review_media(*), product:products(name, slug)')
       .eq('status', 'approved')
       .eq('reviewer_type', 'influencer')
       .order('featured', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(limit)
     if (error) return { data: [], error }
-    return { data: (data || []).map(normalizeReview), error: null }
+
+    let results = (data || []).map(normalizeReview)
+
+    // 2. If fewer than limit, also fetch any other approved reviews that include video media
+    if (results.length < limit) {
+      const existingIds = new Set(results.map((r) => r.id))
+      const { data: moreReviews } = await supabase
+        .from('reviews')
+        .select('*, media:review_media(*), product:products(name, slug)')
+        .eq('status', 'approved')
+        .neq('reviewer_type', 'influencer')
+        .order('featured', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limit * 2)
+
+      if (moreReviews?.length) {
+        const videoReviews = moreReviews
+          .map(normalizeReview)
+          .filter(
+            (r) =>
+              !existingIds.has(r.id) &&
+              r.media?.some((m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video')
+          )
+        results = [...results, ...videoReviews].slice(0, limit)
+      }
+    }
+
+    return { data: results, error: null }
   })
 }
 

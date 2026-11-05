@@ -38,8 +38,8 @@ export default function ShopPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    document.title = 'The Collection · Pure Botanical Hair Care · Revivaa'
     const prev = document.title
+    document.title = 'The Collection · Pure Botanical Hair Care · Revivaa'
     return () => {
       document.title = prev
     }
@@ -188,14 +188,12 @@ export default function ShopPage() {
       <main id="main" tabIndex={-1} className="shop-page">
         <Breadcrumbs items={[{ label: 'The Collection', href: '/shop' }]} />
         <div className="container">
+          {/* ——— Compact header ——— */}
           <header className="shop-page__header">
-            <div className="shop-page__label-wrap">
-              <span className="section-label">The Botanical Collection</span>
-            </div>
-            <h1 className="shop-page__title">The Revivaa Collection · Pure Botanical Hair Care</h1>
+            <span className="section-label">The Botanical Collection</span>
+            <h1 className="shop-page__title">The Revivaa Collection</h1>
             <p className="shop-page__lead">
-              Nourish, strengthen, and support healthier-looking hair. Formulated with 13 pure
-              botanical extracts and zero harmful additives.
+              Pure botanical hair care, made with 13 plant extracts and zero harmful additives.
             </p>
           </header>
 
@@ -209,6 +207,7 @@ export default function ShopPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="shop-page__search-input"
+                aria-label="Search products"
               />
               {searchTerm && (
                 <button

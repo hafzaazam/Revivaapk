@@ -54,6 +54,21 @@
   );
 }
 
+.review-media--instagram {
+  aspect-ratio: 9 / 16;
+  min-height: 420px;
+  max-width: 380px;
+}
+
+.review-media__fallback--instagram {
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(242, 151, 12, 0.28),
+    rgba(135, 128, 56, 0.16) 55%,
+    #15140d 95%
+  );
+}
+
 [data-theme='dark'] .review-media {
   background: var(--color-bg-dark-elevated, #242014);
 }

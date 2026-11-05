@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import Stars from '../../components/Stars'
 import useDebounce from '../../hooks/useDebounce'
+import { classifyMediaUrl } from '../../lib/reviews'
 import './AdminReviews.css'
 
 function fmtDate(value) {
@@ -123,7 +124,12 @@ export default function ReviewsManager({ reviews, onStatus, onFeature, onEdit, o
         <div className="adminReviews">
           {filtered.map((review) => {
             const mediaCount = (review.media || []).length
-            const videoCount = (review.media || []).filter((m) => m.kind === 'video').length
+            const videoMedia = (review.media || []).find(
+              (m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
+            )
+            const videoCount = (review.media || []).filter(
+              (m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
+            ).length
             return (
               <article className={`adminReviews__item is-${review.status}`} key={review.id}>
                 <div className="adminReviews__main">
@@ -158,6 +164,16 @@ export default function ReviewsManager({ reviews, onStatus, onFeature, onEdit, o
                             {' '}· <Video className="adminReviews__mini-icon" /> {videoCount}
                           </>
                         )}
+                      </span>
+                    )}
+                    {videoMedia && (
+                      <span className="adminReviews__video-tag" title={videoMedia.url}>
+                        · <Video className="adminReviews__mini-icon" />
+                        <a href={videoMedia.url} target="_blank" rel="noopener noreferrer">
+                          {videoMedia.url.length > 40
+                            ? `${videoMedia.url.slice(0, 37)}…`
+                            : videoMedia.url}
+                        </a>
                       </span>
                     )}
                     {review.verified_purchase && <span>· Verified purchase</span>}

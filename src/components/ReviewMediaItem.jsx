@@ -1,4 +1,10 @@
-import { classifyMediaUrl, videoEmbedUrl, videoThumbUrl } from '../lib/reviews'
+import {
+  classifyMediaUrl,
+  videoEmbedUrl,
+  videoThumbUrl,
+  isEmbedVideoUrl,
+  isInstagramUrl,
+} from '../lib/reviews'
 import useInView from '../hooks/useInView'
 import './ReviewMediaItem.css'
 
@@ -19,18 +25,31 @@ export default function ReviewMediaItem({ item, className = '' }) {
   /* Video players (embeds / <video>) mount only when the card is near the
      viewport — a poster/thumbnail loads instead until then. */
   const embed = videoEmbedUrl(item.url)
-  const isEmbed = embed !== item.url && /youtube|player\.vimeo/i.test(embed)
+  const isEmbed = isEmbedVideoUrl(item.url)
+  const isInstagram = isInstagramUrl(item.url)
   const poster = item.posterUrl || videoThumbUrl(item.url)
+
+  const figureClasses = [
+    'review-media',
+    'review-media--video',
+    isInstagram ? 'review-media--instagram' : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   if (inView) {
     return (
-      <figure ref={ref} className={`review-media review-media--video ${className}`}>
+      <figure ref={ref} className={figureClasses}>
         {isEmbed ? (
           <iframe
             src={embed}
             title="Review video"
             loading="lazy"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            frameBorder="0"
+            scrolling="no"
+            allowTransparency="true"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />
         ) : (
@@ -47,12 +66,24 @@ export default function ReviewMediaItem({ item, className = '' }) {
   }
 
   return (
-    <figure ref={ref} className={`review-media review-media--video ${className}`}>
+    <figure ref={ref} className={figureClasses}>
       {poster ? (
-        <img className="review-media__fallback" src={poster} alt="" loading="lazy" />
-      ) : (
-        <span className="review-media__fallback review-media__fallback--blank" aria-hidden="true" />
-      )}
+        <img
+          className="review-media__fallback"
+          src={poster}
+          alt=""
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.style.display = 'none'
+          }}
+        />
+      ) : null}
+      <span
+        className={`review-media__fallback review-media__fallback--blank ${
+          isInstagram ? 'review-media__fallback--instagram' : ''
+        }`}
+        aria-hidden="true"
+      />
     </figure>
   )
 }

@@ -1,4 +1,6 @@
 import { supabase, isSupabaseConfigured } from './supabase'
+import { invalidateCache } from './apiCache'
+import { classifyMediaUrl, videoThumbUrl } from './reviews'
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
@@ -303,6 +305,7 @@ export async function adminUpdateReviewStatus(id, status) {
     return { error: new Error('Supabase not configured') }
   }
   const { error } = await supabase.from('reviews').update({ status }).eq('id', id)
+  if (!error) invalidateCache(/^reviews:/)
   return { error }
 }
 
@@ -311,6 +314,7 @@ export async function adminUpdateReview(id, patch) {
     return { error: new Error('Supabase not configured') }
   }
   const { error } = await supabase.from('reviews').update(patch).eq('id', id)
+  if (!error) invalidateCache(/^reviews:/)
   return { error }
 }
 
@@ -327,6 +331,7 @@ export async function adminDeleteReview(review) {
     }
   }
   const { error } = await supabase.from('reviews').delete().eq('id', review.id)
+  if (!error) invalidateCache(/^reviews:/)
   return { error }
 }
 
@@ -339,6 +344,15 @@ export async function adminSaveReview({ review, media = [], patch = null }) {
     const cleanPatch = { ...patch }
     if (cleanPatch.authorName && !cleanPatch.author_name) {
       cleanPatch.author_name = cleanPatch.authorName
+    }
+    if (cleanPatch.productId && !cleanPatch.product_id) {
+      cleanPatch.product_id = cleanPatch.productId
+    }
+    if (cleanPatch.reviewerType && !cleanPatch.reviewer_type) {
+      cleanPatch.reviewer_type = cleanPatch.reviewerType
+    }
+    if (cleanPatch.verifiedPurchase !== undefined && cleanPatch.verified_purchase === undefined) {
+      cleanPatch.verified_purchase = cleanPatch.verifiedPurchase
     }
     delete cleanPatch.authorName
     delete cleanPatch.productId
@@ -377,25 +391,40 @@ export async function adminSaveReview({ review, media = [], patch = null }) {
     review = { ...review, id }
   }
 
-  const trimmed = media.filter((m) => m.url)
+  const trimmed = (media || []).filter((m) => m && m.url && String(m.url).trim())
   if (trimmed.length) {
     const { error: delErr } = await supabase
       .from('review_media')
       .delete()
       .eq('review_id', review.id)
-    if (delErr) return { error: delErr }
+    if (delErr) {
+      console.warn('Could not delete existing review_media:', delErr)
+    }
 
-    const rows = trimmed.map((m, i) => ({
-      id: ensureUuid(m.id),
-      review_id: review.id,
-      kind: m.kind || 'image',
-      url: m.url,
-      path: m.path || null,
-      poster_url: m.posterUrl || m.poster_url || null,
-      position: m.position ?? (i + 1) * 10,
-    }))
-    const { error: insErr } = await supabase.from('review_media').upsert(rows)
-    if (insErr) return { error: insErr }
+    const rows = trimmed.map((m, i) => {
+      const rawUrl = String(m.url || '').trim()
+      const kind = m.kind || classifyMediaUrl(rawUrl) || 'image'
+      const poster =
+        (m.posterUrl && String(m.posterUrl).trim()) ||
+        (m.poster_url && String(m.poster_url).trim()) ||
+        (kind === 'video' ? videoThumbUrl(rawUrl) : null) ||
+        null
+      return {
+        id: ensureUuid(m.id),
+        review_id: review.id,
+        kind,
+        url: rawUrl,
+        path: m.path || null,
+        poster_url: poster,
+        position: m.position ?? (i + 1) * 10,
+      }
+    })
+    const { error: insErr } = await supabase.from('review_media').insert(rows)
+    if (insErr) {
+      // Fallback to upsert if id exists
+      const { error: upErr } = await supabase.from('review_media').upsert(rows)
+      if (upErr) return { error: upErr }
+    }
   } else {
     const { error: delErr } = await supabase
       .from('review_media')
@@ -403,5 +432,7 @@ export async function adminSaveReview({ review, media = [], patch = null }) {
       .eq('review_id', review.id)
     if (delErr) return { error: delErr }
   }
+
+  invalidateCache(/^reviews:/)
   return { error: null }
 }

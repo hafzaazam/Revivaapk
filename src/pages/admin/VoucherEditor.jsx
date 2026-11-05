@@ -165,7 +165,7 @@ export default function VoucherEditor({ initial, onSave, onClose }) {
         <strong>uses per buyer</strong>.
       </p>
 
-      <button type="submit" className="admin-btn" disabled={busy}>
+      <button type="submit" className="admin-btn admin-btn--full" disabled={busy}>
         {busy ? 'Saving…' : initial ? 'Save voucher' : 'Create voucher'}
       </button>
     </form>

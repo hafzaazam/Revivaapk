@@ -1,7 +1,7 @@
 .scroll-top {
   position: fixed;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1.15rem, env(safe-area-inset-bottom));
+  right: max(1.55rem, env(safe-area-inset-right));
+  bottom: max(5.35rem, env(safe-area-inset-bottom));
   z-index: 90;
   width: 44px;
   height: 44px;
@@ -64,17 +64,11 @@
   }
 }
 
-@media (max-width: 480px) {
-  .scroll-top {
-    right: max(0.75rem, env(safe-area-inset-right));
-    bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
-    width: 42px;
-    height: 42px;
-  }
-}
-
 @media (max-width: 960px) {
   .scroll-top {
-    bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+    width: 42px;
+    height: 42px;
   }
 }

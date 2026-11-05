@@ -183,7 +183,7 @@ export default function CategoryEditor({ categories = [], initial, onSave, onClo
         <span>Active</span>
       </label>
 
-      <button type="submit" className="admin-btn" disabled={busy}>
+      <button type="submit" className="admin-btn admin-btn--full" disabled={busy}>
         {busy ? 'Saving…' : initial ? 'Save category' : 'Create category'}
       </button>
     </form>

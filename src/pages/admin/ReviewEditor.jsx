@@ -2,6 +2,13 @@ import { useState } from 'react'
 import { useAuth } from '../../auth/AuthProvider'
 import { StarPicker } from '../../components/Stars'
 import ReviewMediaPicker from '../../components/ReviewMediaPicker'
+import ReviewMediaItem from '../../components/ReviewMediaItem'
+import {
+  classifyMediaUrl,
+  videoThumbUrl,
+  isInstagramUrl,
+  youtubeId,
+} from '../../lib/reviews'
 import './AdminReviews.css'
 
 export default function ReviewEditor({ initial, products, onSave, onClose }) {
@@ -18,16 +25,26 @@ export default function ReviewEditor({ initial, products, onSave, onClose }) {
     status: initial?.status || 'approved',
     verifiedPurchase: Boolean(initial?.verified_purchase),
   }))
-  const [media, setMedia] = useState(
-    (initial?.media || []).map((m) => ({
-      id: m.id,
-      kind: m.kind,
-      url: m.url,
-      path: m.path || null,
-      posterUrl: m.poster_url || null,
-      position: m.position ?? 0,
-    })),
+
+  // Detect existing video media from initial review
+  const initialMedia = (initial?.media || []).map((m) => ({
+    id: m.id,
+    kind: m.kind || classifyMediaUrl(m.url) || 'image',
+    url: m.url || '',
+    path: m.path || null,
+    posterUrl: m.poster_url || m.posterUrl || null,
+    position: m.position ?? 0,
+  }))
+
+  const existingVideo = initialMedia.find(
+    (m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
   )
+
+  const [videoUrl, setVideoUrl] = useState(() => existingVideo?.url || '')
+  const [posterUrl, setPosterUrl] = useState(
+    () => existingVideo?.posterUrl || existingVideo?.poster_url || ''
+  )
+  const [media, setMedia] = useState(initialMedia)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -35,6 +52,61 @@ export default function ReviewEditor({ initial, products, onSave, onClose }) {
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }))
   const setBool = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.checked }))
+
+  const handleVideoUrlChange = (val) => {
+    setVideoUrl(val)
+    const trimmed = val.trim()
+    const autoThumb = trimmed ? videoThumbUrl(trimmed) : null
+    if (autoThumb && !posterUrl) {
+      setPosterUrl(autoThumb)
+    }
+
+    setMedia((prev) => {
+      const nonVideos = prev.filter(
+        (m) => m.kind !== 'video' && classifyMediaUrl(m.url) !== 'video'
+      )
+      if (!trimmed) return nonVideos
+
+      const existingVid = prev.find(
+        (m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
+      )
+      const vidItem = {
+        id:
+          existingVid?.id ||
+          (typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `vid-${Date.now()}`),
+        kind: 'video',
+        url: trimmed,
+        path: existingVid?.path || null,
+        posterUrl: posterUrl.trim() || autoThumb || null,
+        position: 0,
+      }
+      return [vidItem, ...nonVideos]
+    })
+  }
+
+  const handlePosterUrlChange = (val) => {
+    setPosterUrl(val)
+    setMedia((prev) =>
+      prev.map((m) =>
+        m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
+          ? { ...m, posterUrl: val.trim() || null }
+          : m
+      )
+    )
+  }
+
+  const handleMediaPickerChange = (nextMedia) => {
+    setMedia(nextMedia)
+    const vid = nextMedia.find(
+      (m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
+    )
+    if (vid) {
+      setVideoUrl(vid.url || '')
+      setPosterUrl(vid.posterUrl || vid.poster_url || '')
+    }
+  }
 
   const submit = async (e) => {
     e.preventDefault()
@@ -50,6 +122,37 @@ export default function ReviewEditor({ initial, products, onSave, onClose }) {
     if (!form.body.trim()) {
       setError('Review text is required.')
       return
+    }
+
+    // Ensure finalMedia reflects current videoUrl and posterUrl
+    let finalMedia = [...media]
+    const trimmedVid = videoUrl.trim()
+    if (trimmedVid) {
+      const existingIdx = finalMedia.findIndex(
+        (m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
+      )
+      const vidItem = {
+        id:
+          existingIdx >= 0
+            ? finalMedia[existingIdx].id
+            : (typeof crypto !== 'undefined' && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `vid-${Date.now()}`),
+        kind: 'video',
+        url: trimmedVid,
+        path: existingIdx >= 0 ? finalMedia[existingIdx].path : null,
+        posterUrl: posterUrl.trim() || videoThumbUrl(trimmedVid) || null,
+        position: 0,
+      }
+      if (existingIdx >= 0) {
+        finalMedia[existingIdx] = vidItem
+      } else {
+        finalMedia.unshift(vidItem)
+      }
+    } else {
+      finalMedia = finalMedia.filter(
+        (m) => m.kind !== 'video' && classifyMediaUrl(m.url) !== 'video'
+      )
     }
 
     const base = {
@@ -72,7 +175,7 @@ export default function ReviewEditor({ initial, products, onSave, onClose }) {
     setSaving(true)
     await onSave({
       review: initial || base,
-      media,
+      media: finalMedia,
       patch: isNew ? null : base,
     })
     setSaving(false)
@@ -138,6 +241,55 @@ export default function ReviewEditor({ initial, products, onSave, onClose }) {
           <span>Title</span>
           <input type="text" value={form.title} onChange={set('title')} maxLength={80} />
         </label>
+
+        {/* First-Class Dedicated Video URL Field */}
+        <label className="adminEditor__field adminEditor__field--full">
+          <span className="adminEditor__label-with-badge">
+            <span>Video / Reel URL (Instagram Reel, YouTube, Vimeo, or direct MP4)</span>
+            {videoUrl.trim() && isInstagramUrl(videoUrl.trim()) && (
+              <span className="admin-tag admin-tag--ig">Instagram Reel ✓</span>
+            )}
+            {videoUrl.trim() && youtubeId(videoUrl.trim()) && (
+              <span className="admin-tag admin-tag--yt">YouTube Video ✓</span>
+            )}
+          </span>
+          <input
+            type="url"
+            value={videoUrl}
+            onChange={(e) => handleVideoUrlChange(e.target.value)}
+            placeholder="e.g. https://www.instagram.com/reel/DE4xyz/ or https://youtu.be/... or .mp4 URL"
+          />
+          <span className="adminEditor__field-desc">
+            This video will play directly in the homepage Creator Circle video reels and the product review gallery.
+          </span>
+        </label>
+
+        {/* Video Cover / Poster URL Field */}
+        <label className="adminEditor__field adminEditor__field--full">
+          <span>Video Cover / Poster Image URL (optional)</span>
+          <input
+            type="url"
+            value={posterUrl}
+            onChange={(e) => handlePosterUrlChange(e.target.value)}
+            placeholder="https://... cover image URL (auto-detected for YouTube and Instagram)"
+          />
+        </label>
+
+        {/* Live Video Preview Card */}
+        {videoUrl.trim() && (
+          <div className="adminEditor__video-preview-card">
+            <span className="adminEditor__preview-header">Live Video Preview:</span>
+            <div className="adminEditor__preview-box">
+              <ReviewMediaItem
+                item={{
+                  kind: 'video',
+                  url: videoUrl.trim(),
+                  posterUrl: posterUrl.trim() || videoThumbUrl(videoUrl.trim()),
+                }}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <label className="adminEditor__field">
@@ -146,8 +298,8 @@ export default function ReviewEditor({ initial, products, onSave, onClose }) {
       </label>
 
       <div className="adminEditor__field">
-        <span>Media — upload or paste a URL (video reels show in the home special section)</span>
-        <ReviewMediaPicker value={media} onChange={setMedia} />
+        <span>Additional Media (Upload photos or additional clips)</span>
+        <ReviewMediaPicker value={media} onChange={handleMediaPickerChange} />
       </div>
 
       <div className="adminEditor__checks">

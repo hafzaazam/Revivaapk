@@ -571,24 +571,24 @@ export default function DashboardOverview({
                   <tbody>
                     {(stats.recentOrders || []).map((o) => (
                       <tr key={o.id}>
-                        <td>
+                        <td data-label="Order">
                           #{String(o.id).slice(0, 8)}
                           <span className="do-muted">{new Date(o.created_at).toLocaleDateString()}</span>
                         </td>
-                        <td>{o.customer_name}</td>
-                        <td>{o.customer_city}</td>
-                        <td>
+                        <td data-label="Customer">{o.customer_name}</td>
+                        <td data-label="City">{o.customer_city}</td>
+                        <td data-label="Items">
                           {o.voucher_code && (
                             <span className="admin-tag admin-tag--feat">{o.voucher_code}</span>
                           )}
                         </td>
-                        <td className="do-num">
+                        <td className="do-num" data-label="Discount">
                           {o.discount > 0 ? formatMoney(o.discount) : '—'}
                         </td>
-                        <td className="do-num">
+                        <td className="do-num" data-label="Total">
                           <strong>{formatMoney(o.total)}</strong>
                         </td>
-                        <td>
+                        <td data-label="Status">
                           <span className={`do-status do-status--${o.status || 'pending'}`}>
                             {STATUS_LABEL[o.status] || o.status}
                           </span>

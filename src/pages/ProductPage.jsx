@@ -17,7 +17,6 @@ import {
   Leaf,
   Sparkles,
   ChevronDown,
-  MessageCircle,
 } from 'lucide-react'
 import Cursor from '../components/Cursor'
 import Navbar from '../components/Navbar'
@@ -31,6 +30,13 @@ import { formatMoney } from '../data/product'
 import { fetchProduct, fetchRelatedProducts, statusOf } from '../lib/shop'
 import { PAGE_SEO, SITE_DOMAIN, BRAND_NAME } from '../lib/seoConfig'
 import { flyImageToCart } from '../lib/flyToCart'
+import WhatsAppIcon from '../components/WhatsAppIcon'
+import {
+  buildWhatsAppLink,
+  formatWhatsAppOrderMessage,
+  formatWhatsAppInquiryMessage,
+  WHATSAPP_DISPLAY_PHONE,
+} from '../lib/whatsapp'
 import './ProductPage.css'
 
 const EASE = [0.22, 1, 0.36, 1]
@@ -373,16 +379,21 @@ export default function ProductPage() {
               )}
 
               <a
-                href={`https://wa.me/923440888847?text=Hi%20Revivaa!%20I%20have%20a%20question%20about%20${encodeURIComponent(
-                  product.name
-                )}`}
+                href={buildWhatsAppLink(
+                  formatWhatsAppInquiryMessage({
+                    productName: product.name,
+                    variantSize: selectedVariant(product, selection)?.size,
+                    isOutOfStock: product.stock === 0,
+                    url: typeof window !== 'undefined' ? window.location.href : '',
+                  })
+                )}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="product-whatsapp-help"
               >
-                <MessageCircle size={18} />
+                <WhatsAppIcon size={18} />
                 <span>
-                  Ask about this product on WhatsApp (+92 344 0888847)
+                  Ask about this product on WhatsApp ({WHATSAPP_DISPLAY_PHONE})
                 </span>
               </a>
             </section>
@@ -673,58 +684,90 @@ function BuyBox({ product, variant, added, onAdd }) {
   const plus = () => setQty((q) => Math.min(max, q + 1))
   const minus = () => setQty((q) => Math.max(product.minQty || 1, q - 1))
 
+  const whatsappOrderUrl = useMemo(() => {
+    const message = out
+      ? formatWhatsAppInquiryMessage({
+          productName: product.name,
+          variantSize: variant?.size,
+          isOutOfStock: true,
+          url: typeof window !== 'undefined' ? window.location.href : '',
+        })
+      : formatWhatsAppOrderMessage({
+          productName: product.name,
+          variantSize: variant?.size,
+          quantity: qty,
+          unitPrice: price,
+          currency: product.currency || 'PKR',
+          url: typeof window !== 'undefined' ? window.location.href : '',
+        })
+    return buildWhatsAppLink(message)
+  }, [product.name, product.currency, variant?.size, qty, price, out])
+
   return (
-    <div className="product-buy">
-      <div className="product-buy__qty-stepper" role="group" aria-label="Quantity">
+    <div className="product-buy-container">
+      <div className="product-buy">
+        <div className="product-buy__qty-stepper" role="group" aria-label="Quantity">
+          <button
+            type="button"
+            onClick={minus}
+            disabled={qty <= (product.minQty || 1)}
+            aria-label="Decrease"
+          >
+            <Minus size={16} strokeWidth={2} aria-hidden />
+          </button>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={product.minQty || 1}
+            max={max}
+            value={qty}
+            onChange={(e) => {
+              const n = Number.parseInt(e.target.value, 10)
+              if (!Number.isNaN(n))
+                setQty(Math.min(max, Math.max(product.minQty || 1, n)))
+            }}
+          />
+          <button
+            type="button"
+            onClick={plus}
+            disabled={qty >= max}
+            aria-label="Increase"
+          >
+            <Plus size={16} strokeWidth={2} aria-hidden />
+          </button>
+        </div>
+
         <button
           type="button"
-          onClick={minus}
-          disabled={qty <= (product.minQty || 1)}
-          aria-label="Decrease"
+          className={`clay-btn product-buy__cta ${added ? 'is-added' : ''}`}
+          disabled={out}
+          onClick={() =>
+            onAdd(qty, price, stock, variant && variant.id, variant && variant.size)
+          }
         >
-          <Minus size={16} strokeWidth={2} aria-hidden />
-        </button>
-        <input
-          type="number"
-          inputMode="numeric"
-          min={product.minQty || 1}
-          max={max}
-          value={qty}
-          onChange={(e) => {
-            const n = Number.parseInt(e.target.value, 10)
-            if (!Number.isNaN(n))
-              setQty(Math.min(max, Math.max(product.minQty || 1, n)))
-          }}
-        />
-        <button
-          type="button"
-          onClick={plus}
-          disabled={qty >= max}
-          aria-label="Increase"
-        >
-          <Plus size={16} strokeWidth={2} aria-hidden />
+          {added ? (
+            <>
+              <Check size={18} strokeWidth={2.4} aria-hidden /> Added to Bag
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={18} strokeWidth={2} aria-hidden />
+              {out ? 'Out of stock' : 'Add to Bag'}
+            </>
+          )}
         </button>
       </div>
 
-      <button
-        type="button"
-        className={`clay-btn product-buy__cta ${added ? 'is-added' : ''}`}
-        disabled={out}
-        onClick={() =>
-          onAdd(qty, price, stock, variant && variant.id, variant && variant.size)
-        }
+      <a
+        href={whatsappOrderUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`product-buy__whatsapp-cta ${out ? 'is-out' : ''}`}
+        aria-label={out ? 'Inquire about restock on WhatsApp' : `Order ${qty} ${product.name} on WhatsApp`}
       >
-        {added ? (
-          <>
-            <Check size={18} strokeWidth={2.4} aria-hidden /> Added to Bag
-          </>
-        ) : (
-          <>
-            <ShoppingBag size={18} strokeWidth={2} aria-hidden />
-            {out ? 'Out of stock' : 'Add to Bag'}
-          </>
-        )}
-      </button>
+        <WhatsAppIcon size={20} className="product-buy__whatsapp-icon" />
+        <span>{out ? 'Inquire on WhatsApp' : 'Order via WhatsApp'}</span>
+      </a>
     </div>
   )
 }

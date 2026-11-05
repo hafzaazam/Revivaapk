@@ -297,10 +297,23 @@
   color: var(--admin-ink, #2a2a1e);
 }
 
+@media (max-width: 640px) {
+  .admin-notif__panel {
+    position: fixed;
+    top: 60px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+}
+
 @media (max-width: 560px) {
   .admin-toasts {
     left: 1rem;
     right: 1rem;
+    bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
     width: auto;
   }
 }

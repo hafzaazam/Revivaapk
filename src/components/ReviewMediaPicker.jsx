@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Plus, Upload, Link2, Loader2, X } from 'lucide-react'
-import { uploadReviewMedia, classifyMediaUrl } from '../lib/reviews'
+import { uploadReviewMedia, classifyMediaUrl, videoThumbUrl } from '../lib/reviews'
 import ReviewMediaItem from './ReviewMediaItem'
 import './ReviewMediaPicker.css'
 
@@ -52,15 +52,33 @@ export default function ReviewMediaPicker({ value = [], onChange, disabled = fal
   const addUrl = () => {
     const u = (urlRow.url || '').trim()
     if (!u) return
+    const kind = urlRow.kind || classifyMediaUrl(u) || 'image'
+    const poster =
+      (urlRow.posterUrl || '').trim() ||
+      (kind === 'video' ? videoThumbUrl(u) : null)
     add({
       id: uid(),
-      kind: urlRow.kind || classifyMediaUrl(u) || 'image',
+      kind,
       url: u,
       path: null,
-      posterUrl: null,
+      posterUrl: poster || null,
       position: value.length + 1,
     })
-    setUrlRow({ open: true, url: '', kind: urlRow.kind || 'video' })
+    setUrlRow(null)
+  }
+
+  const setItemPoster = (id) => {
+    const item = value.find((m) => m.id === id)
+    if (!item) return
+    const current = item.posterUrl || ''
+    const next = window.prompt('Enter cover image / poster URL for this video:', current)
+    if (next !== null) {
+      onChange(
+        value.map((m) =>
+          m.id === id ? { ...m, posterUrl: next.trim() || null } : m
+        )
+      )
+    }
   }
 
   return (
@@ -69,6 +87,16 @@ export default function ReviewMediaPicker({ value = [], onChange, disabled = fal
         {value.map((item) => (
           <div className="rmedia-picker__item" key={item.id}>
             <ReviewMediaItem item={item} />
+            {item.kind === 'video' && (
+              <button
+                type="button"
+                className="rmedia-picker__poster-badge"
+                title={item.posterUrl ? 'Edit video cover image' : 'Add video cover image'}
+                onClick={() => setItemPoster(item.id)}
+              >
+                {item.posterUrl ? 'Cover ✓' : '+ Cover'}
+              </button>
+            )}
             <button
               type="button"
               className="rmedia-picker__remove"
@@ -84,12 +112,57 @@ export default function ReviewMediaPicker({ value = [], onChange, disabled = fal
           <>
             {urlRow?.open ? (
               <div className="rmedia-picker__url">
-                <input
-                  value={urlRow.url}
-                  onChange={(e) => setUrlRow({ ...urlRow, url: e.target.value })}
-                  placeholder="Paste image or video URL"
-                  aria-label="Media URL"
-                />
+                <div className="rmedia-picker__url-row">
+                  <select
+                    value={urlRow.kind || 'video'}
+                    onChange={(e) => setUrlRow({ ...urlRow, kind: e.target.value })}
+                  >
+                    <option value="video">Video</option>
+                    <option value="image">Image</option>
+                  </select>
+                  <input
+                    value={urlRow.url}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      const detectedKind = classifyMediaUrl(val) || urlRow.kind || 'video'
+                      const autoThumb = detectedKind === 'video' ? videoThumbUrl(val) : null
+                      setUrlRow({
+                        ...urlRow,
+                        url: val,
+                        kind: detectedKind,
+                        posterUrl: urlRow.posterUrl || autoThumb || '',
+                      })
+                    }}
+                    placeholder={
+                      urlRow.kind === 'video'
+                        ? 'Paste video URL (Instagram Reel, YouTube, Vimeo, MP4…)'
+                        : 'Paste image URL'
+                    }
+                    aria-label="Media URL"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addUrl()
+                      }
+                    }}
+                  />
+                </div>
+
+                {urlRow.kind === 'video' && (
+                  <input
+                    value={urlRow.posterUrl || ''}
+                    onChange={(e) => setUrlRow({ ...urlRow, posterUrl: e.target.value })}
+                    placeholder="Video cover / thumbnail URL (optional, auto for YouTube/Instagram)"
+                    aria-label="Cover Image URL"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addUrl()
+                      }
+                    }}
+                  />
+                )}
+
                 <div className="rmedia-picker__url-actions">
                   <button type="button" disabled={!urlRow.url.trim()} onClick={addUrl}>
                     Add
@@ -113,7 +186,7 @@ export default function ReviewMediaPicker({ value = [], onChange, disabled = fal
                 <button
                   type="button"
                   className="rmedia-picker__tile"
-                  onClick={() => setUrlRow({ open: true, url: '', kind: 'video' })}
+                  onClick={() => setUrlRow({ open: true, url: '', kind: 'video', posterUrl: '' })}
                 >
                   <Link2 size={18} />
                   <span>URL</span>
@@ -123,21 +196,6 @@ export default function ReviewMediaPicker({ value = [], onChange, disabled = fal
           </>
         )}
       </div>
-
-      {urlRow?.open && value.length < max && (
-        <div className="rmedia-picker__hint">
-          <label>
-            Kinds
-            <select
-              value={urlRow.kind}
-              onChange={(e) => setUrlRow({ ...urlRow, kind: e.target.value })}
-            >
-              <option value="video">Video</option>
-              <option value="image">Image</option>
-            </select>
-          </label>
-        </div>
-      )}
 
       <input
         ref={fileRef}

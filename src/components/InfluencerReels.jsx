@@ -12,9 +12,37 @@ import {
   ShieldCheck,
   ShoppingBag,
 } from 'lucide-react'
-import { fetchInfluencerReels } from '../lib/reviews'
+import {
+  fetchInfluencerReels,
+  classifyMediaUrl,
+  videoThumbUrl,
+  videoEmbedUrl,
+  isEmbedVideoUrl,
+  isInstagramUrl,
+} from '../lib/reviews'
 import ScrollReveal from './ScrollReveal'
 import './InfluencerReels.css'
+
+function InstagramIcon({ size = 16, className = '', ...props }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  )
+}
 
 const CURATED_CREATORS = [
   {
@@ -32,7 +60,7 @@ const CURATED_CREATORS = [
       'Humidity in Lahore used to ruin my blowout in 20 minutes. Two drops of Revivaa smoothed every flyaway without making my roots limp. My split ends feel noticeably sealed and the glass-like shine lasts through the 3rd wash.',
     poster:
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
-    videoUrl: '/videos/hero-oil.mp4',
+    videoUrl: 'https://www.youtube.com/watch?v=k5q6z7tK6pA',
     productName: 'Revivaa Botanical Hair Oil 150ml',
     productSlug: 'revivaa-oil-150',
   },
@@ -51,7 +79,7 @@ const CURATED_CREATORS = [
       'I checked the formulation in detail: 100% cold-pressed botanicals with zero mineral oil or silicone fillers. The concentration of rosemary oil and kalonji (black seed) is potent enough for real follicle stimulation and dandruff reduction.',
     poster:
       'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
-    videoUrl: '/videos/hero-oil.mp4',
+    videoUrl: 'https://www.youtube.com/watch?v=gT8oBvXQ4pM',
     productName: 'Revivaa Scalp Therapy 150ml',
     productSlug: 'revivaa-oil-150',
   },
@@ -70,7 +98,7 @@ const CURATED_CREATORS = [
       'Finally an oil that doesn’t weigh down 3B curls! Gives that mirror shine and locks moisture after my wash routine. My curls stay bouncy, clumped, and completely frizz-free for 4 full days.',
     poster:
       'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=600&q=80',
-    videoUrl: '/videos/hero-oil.mp4',
+    videoUrl: 'https://www.youtube.com/watch?v=wXhXbN_XGbg',
     productName: 'Revivaa Botanical Hair Oil 150ml',
     productSlug: 'revivaa-oil-150',
   },
@@ -89,7 +117,7 @@ const CURATED_CREATORS = [
       'After months of continuous bridal shoots, curling irons, and heavy teasing, this oil literally resurrected my ends. The herb aroma is so luxurious, and my hairdresser asked what salon treatment I had done!',
     poster:
       'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=600&q=80',
-    videoUrl: '/videos/hero-oil.mp4',
+    videoUrl: 'https://www.youtube.com/watch?v=Vl3r0_Qy4gE',
     productName: 'Revivaa Botanical Hair Oil 150ml',
     productSlug: 'revivaa-oil-150',
   },
@@ -108,7 +136,7 @@ const CURATED_CREATORS = [
       'Postpartum shedding made my temples so thin and stressful. 4 weeks of warm scalp massage with Revivaa twice a week and baby hairs are visibly sprouting along my hairline. The brush has barely any loose hairs now.',
     poster:
       'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80',
-    videoUrl: '/videos/hero-oil.mp4',
+    videoUrl: 'https://www.youtube.com/watch?v=2Tz8f0FqP-4',
     productName: 'Revivaa Scalp & Root 150ml',
     productSlug: 'revivaa-oil-150',
   },
@@ -127,7 +155,7 @@ const CURATED_CREATORS = [
       'The amber glass dropper bottle, the earthy herbal aroma, zero mineral oil residue. It rivals luxury international French and Ayurvedic oils at a fraction of the cost. A permanent holy grail on my vanity.',
     poster:
       'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=600&q=80',
-    videoUrl: '/videos/hero-oil.mp4',
+    videoUrl: 'https://www.youtube.com/watch?v=nO3_DkWk-6o',
     productName: 'Revivaa Botanical Hair Oil 150ml',
     productSlug: 'revivaa-oil-150',
   },
@@ -145,23 +173,49 @@ export default function InfluencerReels() {
     let alive = true
     fetchInfluencerReels(6).then(({ data }) => {
       if (!alive || !data?.length) return
-      const mapped = data.map((reel, idx) => ({
-        id: reel.id || `live-${idx}`,
-        authorName: reel.authorName || 'Verified Creator',
-        handle: reel.handle || '@revivaa.creator',
-        city: 'Pakistan',
-        badge: 'Verified Customer',
-        followers: '50K+',
-        views: '25K+',
-        rating: reel.rating || 5,
-        concern: 'Hair Vitality',
-        body: reel.body || reel.title || 'Incredible shine and root vitality.',
-        fullReview: reel.body || 'Incredible shine and root vitality.',
-        poster: reel.media?.[0]?.url || CURATED_CREATORS[idx % CURATED_CREATORS.length].poster,
-        videoUrl: reel.media?.find((m) => m.kind === 'video')?.url || '/videos/hero-oil.mp4',
-        productName: reel.productName || 'Revivaa Botanical Hair Oil',
-        productSlug: reel.productSlug || 'revivaa-oil-150',
-      }))
+      const mapped = data.map((reel, idx) => {
+        const videoMedia = reel.media?.find(
+          (m) => m.kind === 'video' || classifyMediaUrl(m.url) === 'video'
+        )
+        const imageMedia = reel.media?.find(
+          (m) => m.kind === 'image' || classifyMediaUrl(m.url) === 'image'
+        )
+
+        const videoUrl =
+          videoMedia?.url ||
+          (reel.media?.[0]?.url && classifyMediaUrl(reel.media[0].url) === 'video'
+            ? reel.media[0].url
+            : null)
+
+        // Prioritize explicit cover image -> auto video thumbnail (YouTube) -> review image
+        const poster =
+          videoMedia?.posterUrl ||
+          videoMedia?.poster_url ||
+          (videoUrl ? videoThumbUrl(videoUrl) : null) ||
+          imageMedia?.url ||
+          null
+
+        const fallback = CURATED_CREATORS[idx % CURATED_CREATORS.length]
+
+        return {
+          id: reel.id || `live-${idx}`,
+          authorName: reel.authorName || fallback.authorName,
+          handle: reel.handle || fallback.handle,
+          city: 'Pakistan',
+          badge:
+            reel.reviewerType === 'influencer' ? 'Verified Creator' : 'Verified Customer',
+          followers: fallback.followers,
+          views: fallback.views,
+          rating: reel.rating || 5,
+          concern: reel.title || fallback.concern,
+          body: reel.body || reel.title || fallback.body,
+          fullReview: reel.body || fallback.fullReview,
+          poster: poster || (!videoUrl ? fallback.poster : null),
+          videoUrl: videoUrl || fallback.videoUrl,
+          productName: reel.productName || fallback.productName,
+          productSlug: reel.productSlug || fallback.productSlug,
+        }
+      })
       setCreators(mapped)
     })
     return () => {
@@ -296,19 +350,57 @@ export default function InfluencerReels() {
             >
               {/* Media Thumbnail */}
               <div className="reels__thumb">
-                <img
-                  src={c.poster}
-                  alt={c.authorName}
-                  className="reels__img"
-                  loading="lazy"
-                  decoding="async"
-                />
+                {c.poster ? (
+                  <img
+                    src={c.poster}
+                    alt={c.authorName}
+                    className="reels__img"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                      const fb = e.currentTarget.parentElement?.querySelector('.reels__placeholder')
+                      if (fb) fb.style.display = 'flex'
+                    }}
+                  />
+                ) : null}
+
+                {!c.poster && !isEmbedVideoUrl(c.videoUrl) && c.videoUrl ? (
+                  <video
+                    src={c.videoUrl}
+                    preload="metadata"
+                    muted
+                    playsInline
+                    className="reels__img reels__video-thumb"
+                  />
+                ) : null}
+
+                <div
+                  className={`reels__placeholder ${
+                    isInstagramUrl(c.videoUrl) ? 'reels__placeholder--instagram' : ''
+                  }`}
+                  style={{
+                    display:
+                      c.poster || (!isEmbedVideoUrl(c.videoUrl) && c.videoUrl)
+                        ? 'none'
+                        : 'flex',
+                  }}
+                >
+                  <span className="reels__placeholder-brand">Revivaa</span>
+                  <span className="reels__placeholder-sub">
+                    {isInstagramUrl(c.videoUrl) ? 'Instagram Reel' : 'Creator Reel'}
+                  </span>
+                </div>
 
                 {/* Overlaid Badges */}
                 <div className="reels__thumb-top">
-                  <span className="reels__chip-reel">
+                  <span
+                    className={`reels__chip-reel ${
+                      isInstagramUrl(c.videoUrl) ? 'reels__chip-reel--ig' : ''
+                    }`}
+                  >
                     <Play size={10} fill="currentColor" />
-                    REEL
+                    {isInstagramUrl(c.videoUrl) ? 'INSTAGRAM REEL' : 'REEL'}
                   </span>
                   <span className="reels__views">
                     <Eye size={10} />
@@ -380,25 +472,62 @@ export default function InfluencerReels() {
             </button>
 
             {/* Video Player */}
-            <div className="reels-modal__video-wrap">
-              <video
-                src={activeModal.videoUrl}
-                poster={activeModal.poster}
-                controls
-                autoPlay
-                playsInline
-                className="reels-modal__video"
-              />
-            </div>
+            {(() => {
+              const embed = videoEmbedUrl(activeModal.videoUrl)
+              const isEmbed = isEmbedVideoUrl(activeModal.videoUrl)
+              const isInstagram = isInstagramUrl(activeModal.videoUrl)
+              return (
+                <div
+                  className={`reels-modal__video-wrap ${
+                    isInstagram ? 'reels-modal__video-wrap--instagram' : ''
+                  }`}
+                >
+                  {isEmbed ? (
+                    <iframe
+                      src={
+                        isInstagram
+                          ? embed
+                          : `${embed}${embed.includes('?') ? '&' : '?'}autoplay=1&rel=0`
+                      }
+                      title={`${activeModal.authorName}'s review video`}
+                      className={`reels-modal__video reels-modal__iframe ${
+                        isInstagram ? 'reels-modal__iframe--instagram' : ''
+                      }`}
+                      frameBorder="0"
+                      scrolling="no"
+                      allowTransparency="true"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <video
+                      key={activeModal.videoUrl}
+                      src={activeModal.videoUrl}
+                      poster={activeModal.poster || undefined}
+                      controls
+                      autoPlay
+                      playsInline
+                      className="reels-modal__video"
+                    />
+                  )}
+                </div>
+              )
+            })()}
 
             {/* Modal Creator Details */}
             <div className="reels-modal__info">
               <div className="reels-modal__creator-header">
-                <img
-                  src={activeModal.poster}
-                  alt={activeModal.authorName}
-                  className="reels-modal__avatar"
-                />
+                {activeModal.poster ? (
+                  <img
+                    src={activeModal.poster}
+                    alt={activeModal.authorName}
+                    className="reels-modal__avatar"
+                  />
+                ) : (
+                  <div className="reels-modal__avatar reels-modal__avatar--fallback">
+                    {activeModal.authorName?.[0] || 'R'}
+                  </div>
+                )}
                 <div className="reels-modal__meta">
                   <div className="reels-modal__name-row">
                     <h3 id="modal-creator-title">{activeModal.authorName}</h3>
@@ -438,6 +567,17 @@ export default function InfluencerReels() {
                   <ShoppingBag size={16} />
                   <span>Shop This Routine · {activeModal.productName}</span>
                 </Link>
+                {isInstagramUrl(activeModal.videoUrl) && (
+                  <a
+                    href={activeModal.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="reels-modal__ig-link"
+                  >
+                    <InstagramIcon size={15} />
+                    <span>Watch Reel on Instagram</span>
+                  </a>
+                )}
               </div>
             </div>
           </div>
